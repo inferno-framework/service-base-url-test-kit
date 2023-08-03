@@ -1,10 +1,10 @@
-require_relative 'inferno_template/patient_group'
+require_relative 'service_base_url_test_kit/patient_group'
 
-module InfernoTemplate
-  class Suite < Inferno::TestSuite
-    id :test_suite_template
-    title 'Inferno Test Suite Template'
-    description 'A basic test suite template for Inferno'
+module ServiceBaseURLTestKit
+  class ServiceBaseURLTestSuite < Inferno::TestSuite
+    id :service_base_url_test_suite
+    title 'Service Base URL Test Suite'
+    description 'A service base url testing suite for Inferno'
 
     # These inputs will be available to all tests in this suite
     input :url,
