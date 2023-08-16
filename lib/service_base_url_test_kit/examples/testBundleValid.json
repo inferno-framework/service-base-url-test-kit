@@ -24,7 +24,7 @@
               ]
             }
         ],
-        "address": "https://example1.com"
+        "address": "http://example.com/fhir/1"
       }
     },
     {
@@ -79,7 +79,7 @@
               ]
             }
         ],
-        "address": "https://example2.com"
+        "address": "http://example.com/fhir/1"
       }
     },
     {
@@ -134,7 +134,7 @@
               ]
             }
         ],
-        "address": "https://example3.com"
+        "address": "http://example.com/fhir/1"
       }
     },
     {
