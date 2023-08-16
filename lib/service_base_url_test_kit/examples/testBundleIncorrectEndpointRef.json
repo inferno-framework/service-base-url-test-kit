@@ -53,7 +53,7 @@
         ],
         "endpoint" : [
             {
-              "reference" : "Endpoint/fake-reference"
+              "reference" : "Endpoint/example-endpoint-1"
             }
         ]
       }
@@ -164,6 +164,37 @@
         "endpoint" : [
             {
               "reference" : "Endpoint/example-endpoint-3"
+            }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "https://example.com/base/Organization/example-organization-4",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "example-organization-4",
+        "name": "Test Medical Center 4",
+        "active": true,
+        "identifier" : [
+            {
+              "system" : "http://hl7.org/fhir/sid/us-npi",
+              "value" : "1396251542"
+            }
+        ],
+        "address": [
+          {
+            "line": [
+              "200 River Green Ave"
+            ],
+            "city": "Canton",
+            "state": "GA",
+            "postalCode": "30114",
+            "country": "United States of America"
+          }
+        ],
+        "endpoint" : [
+            {
+              "reference" : "Endpoint/fake-reference"
             }
         ]
       }
