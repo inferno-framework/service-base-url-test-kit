@@ -1,53 +1,26 @@
-require_relative 'service_base_url_test_kit/patient_group'
+require_relative 'service_base_url_test_kit/service_base_url_group'
 
 module ServiceBaseURLTestKit
   class ServiceBaseURLTestSuite < Inferno::TestSuite
-    id :service_base_url_test_suite
+    id :service_base_url_test_kit_suite
     title 'Service Base URL Test Suite'
     description 'A service base url testing suite for Inferno'
 
-    # These inputs will be available to all tests in this suite
-    input :url,
-          title: 'FHIR Server Base Url'
-
-    input :credentials,
-          title: 'OAuth Credentials',
-          type: :oauth_credentials,
-          optional: true
-
-    # All FHIR requests in this suite will use this FHIR client
-    fhir_client do
-      url :url
-      oauth_credentials :credentials
+    Dir.each_child(File.join(__dir__, '/service_base_url_test_kit/examples/')) do |filename|
+      my_bundle = File.read(File.join(__dir__, 'service_base_url_test_kit/examples/', filename))
+      my_bundle_route_handler = proc { [200, { 'Content-Type' => 'application/json' }, [my_bundle]] }
+      
+      # Serve a JSON file at INFERNO_PATH/custom/service_base_url_test_kit_suite/examples/filename
+      route :get, File.join('/examples/', filename), my_bundle_route_handler
     end
 
     # All FHIR validation requsets will use this FHIR validator
-    validator do
-      url ENV.fetch('VALIDATOR_URL')
-    end
-
-    # Tests and TestGroups can be defined inline
-    group do
-      id :capability_statement
-      title 'Capability Statement'
-      description 'Verify that the server has a CapabilityStatement'
-
-      test do
-        id :capability_statement_read
-        title 'Read CapabilityStatement'
-        description 'Read CapabilityStatement from /metadata endpoint'
-
-        run do
-          fhir_get_capability_statement
-
-          assert_response_status(200)
-          assert_resource_type(:capability_statement)
-        end
-      end
+    validator :default do
+      url ENV.fetch('VALIDATOR_URL', 'http://validator_service:4567')
     end
 
     # Tests and TestGroups can be written in separate files and then included
     # using their id
-    group from: :patient_group
+    group from: :service_base_url_group
   end
 end
