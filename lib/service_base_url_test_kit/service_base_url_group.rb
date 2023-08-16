@@ -90,6 +90,7 @@ module ServiceBaseURLTestKit
 
       run do
         bundle_resource = FHIR.from_contents(bundle_response)
+        assert_valid_resource(resource: bundle_resource)
 
         assert_resource_type(:bundle, resource: bundle_resource)
         info do
