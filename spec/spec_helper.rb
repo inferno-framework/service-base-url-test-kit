@@ -6,6 +6,7 @@ ENV['APP_ENV'] ||= 'test'
 require 'database_cleaner/sequel'
 require 'pry'
 require 'pry-byebug'
+require "addressable/uri"
 
 require 'webmock/rspec'
 WebMock.disable_net_connect!
