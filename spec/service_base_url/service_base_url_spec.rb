@@ -27,19 +27,6 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       ]
     )
   end
-  let(:operation_outcome_success) do
-    FHIR::OperationOutcome.new(
-      issue: [
-        {
-          severity: 'information',
-          code: 'informational',
-          details: {
-            text: 'All OK'
-          }
-        }
-      ]
-    )
-  end
   let(:operation_outcome_failure) do
     FHIR::OperationOutcome.new(
       issue: [
@@ -78,16 +65,13 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
   
   describe 'Service Base URL Tests' do
     let(:test) { suite }
-    let(:bundle_resource_valid) { FHIR.from_contents(File.read('spec/fixtures/testBundleValid.json')) }
-    let(:bundle_resource_invalid) { FHIR.from_contents(File.read('spec/fixtures/testBundleInvalid.json')) }
-    let(:bundle_resource_InvalidEndpointRef) { FHIR.from_contents(File.read('spec/fixtures/testBundleIncorrectEndpointRef.json')) }
-    let(:bundle_resource_MissingOrg) { FHIR.from_contents(File.read('spec/fixtures/testBundleMissingOrg.json')) }
+    let(:bundle_resource) { FHIR.from_contents(File.read('spec/fixtures/testBundleValid.json')) }
     let(:capability_statement) { FHIR.from_contents(File.read('spec/fixtures/CapabilityStatement.json')) }
 
     it 'passes if a valid Bundle was received' do
       
       stub_request(:get, service_base_url_list_endpoint)
-        .to_return(status: 200, body: bundle_resource_valid.to_json, headers: {})
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -105,15 +89,18 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     end
 
     it 'fails if an invalid Bundle was received' do
+      # Remove a required field from Bundle resource
+      bundle_resource.type = ""
       
       stub_request(:get, service_base_url_list_endpoint)
-        .to_return(status: 200, body: bundle_resource_invalid.to_json, headers: {})
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
       stub_request(:get, uri_template)
         .to_return(status: 200, body: capability_statement.to_json, headers: {})
 
+      # validator returns a error operation outcome
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
         .to_return(status: 200, body: operation_outcome_failure.to_json)
@@ -123,13 +110,62 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('fail'), "Expected if validation of an invalid Bundle resource fails that the entire test fails."
     end
 
+    it 'fails if Bundle contains endpoints that do not return a successful capability statement' do
+      
+      # change one of the Endpoint addresses to a URL that does not successfully return a capability statement
+      bundle_resource.entry[4].resource.address = "#{base_url}/fake/address"
+      
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+
+      # this endpoint address capability statement endpoint will return a 404
+      capability_statement_request_fail = stub_request(:get, "#{base_url}/fake/address/metadata")
+        .to_return(status: 404, body: "", headers: {})
+     
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      capability_statement_request_success = stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: operation_outcome_success.to_json)
+
+      result = run(test, input)
+
+      expect(result.result).to eq('fail'), "Expected test to fail when Bundle contains endpoint that does not return a successful capability statement"
+      expect(capability_statement_request_success).to have_been_made.times(2)
+    end
 
     it 'fails if Bundle contains an Organization that references a fake Endpoint' do
       
-      stub_request(:get, service_base_url_list_endpoint)
-        .to_return(status: 200, body: bundle_resource_InvalidEndpointRef.to_json, headers: {})
+      # add organization resource to bundle that does not reference an Endpoint contained in the Bundle
+      org = FHIR::Organization.new(
+        name: 'Test Medical Center 4',
+        active: true,
+        identifier: [{
+          system: 'http://hl7.org/fhir/sid/us-npi',
+          value:'1396251542'
+        }],
+        address: [
+          {
+            line: ['200 River Green Ave'],
+            city: 'Canton',
+            state: 'GA',
+            postalCode: '30114',
+            country: 'United States of America'
+          }
+        ],
+        endpoint: [{ reference: 'Endpoint/fake-reference' }]
+      )
 
-      
+      bundle_resource.entry.append(FHIR::Bundle::Entry.new(
+        fullUrl: "https://example.com/base/Organization/example-organization-4",
+        resource: org
+      ))
+     
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+     
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
       stub_request(:get, uri_template)
         .to_return(status: 200, body: capability_statement.to_json, headers: {})
@@ -145,8 +181,11 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
     it 'fails if Bundle contains an Endpoint that does have an associated Organization reference' do
       
+      # Remove the last Organizaition entry so that one Endpoint does not have an Organization resource that references it
+      bundle_resource.entry.delete_at(3)
+      
       stub_request(:get, service_base_url_list_endpoint)
-        .to_return(status: 200, body: bundle_resource_MissingOrg.to_json, headers: {})
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -161,82 +200,5 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       expect(result.result).to eq('fail'), "Expected if Endpoint within bundle does not have an Organization that references it then test will fail"
     end
-
-
   end
-
-  #     it 'fails if a 200 is not received' do
-  #       resource = FHIR::Patient.new(id: patient_id)
-  #       stub_request(:get, "#{url}/Patient/#{patient_id}")
-  #         .to_return(status: 201, body: resource.to_json)
-
-  #       result = run(test, url: url, patient_id: patient_id)
-
-  #       expect(result.result).to eq('fail')
-  #       expect(result.result_message).to match(/200/)
-  #     end
-
-  #     it 'fails if a Patient is not received' do
-  #       resource = FHIR::Condition.new(id: patient_id)
-  #       stub_request(:get, "#{url}/Patient/#{patient_id}")
-  #         .to_return(status: 200, body: resource.to_json)
-
-  #       result = run(test, url: url, patient_id: patient_id)
-
-  #       expect(result.result).to eq('fail')
-  #       expect(result.result_message).to match(/Patient/)
-  #     end
-
-  #     it 'fails if the id received does not match the one requested' do
-  #       resource = FHIR::Patient.new(id: '456')
-  #       stub_request(:get, "#{url}/Patient/#{patient_id}")
-  #         .to_return(status: 200, body: resource.to_json)
-
-  #       result = run(test, url: url, patient_id: patient_id)
-
-  #       expect(result.result).to eq('fail')
-  #       expect(result.result_message).to match(/resource with id/)
-  #     end
-  #   end
-
-  #   describe 'validation test' do
-  #     let(:test) { group.tests.last }
-
-  #     it 'passes if the resource is valid' do
-  #       stub_request(:post, "#{ENV.fetch('VALIDATOR_URL')}/validate")
-  #         .with(query: hash_including({}))
-  #         .to_return(status: 200, body: FHIR::OperationOutcome.new.to_json)
-
-  #       resource = FHIR::Patient.new
-  #       repo_create(
-  #         :request,
-  #         name: :patient,
-  #         test_session_id: test_session.id,
-  #         response_body: resource.to_json
-  #       )
-
-  #       result = run(test)
-
-  #       expect(result.result).to eq('pass')
-  #     end
-
-  #     it 'fails if the resource is not valid' do
-  #       stub_request(:post, "#{ENV.fetch('VALIDATOR_URL')}/validate")
-  #         .with(query: hash_including({}))
-  #         .to_return(status: 200, body: error_outcome.to_json)
-
-  #       resource = FHIR::Patient.new
-  #       repo_create(
-  #         :request,
-  #         name: :patient,
-  #         test_session_id: test_session.id,
-  #         response_body: resource.to_json
-  #       )
-
-  #       result = run(test)
-
-  #       expect(result.result).to eq('fail')
-  #     end
-    # end
-  # end
 end

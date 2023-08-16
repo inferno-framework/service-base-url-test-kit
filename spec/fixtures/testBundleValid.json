@@ -79,7 +79,7 @@
               ]
             }
         ],
-        "address": "http://example.com/fhir/1"
+        "address": "http://example.com/fhir/2"
       }
     },
     {
@@ -134,7 +134,7 @@
               ]
             }
         ],
-        "address": "http://example.com/fhir/1"
+        "address": "http://example.com/fhir/3"
       }
     },
     {
