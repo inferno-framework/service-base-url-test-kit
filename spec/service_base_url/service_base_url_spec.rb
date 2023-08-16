@@ -40,23 +40,22 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       ]
     )
   end
-  # let(:operation_outcome_failure) do
-  #   FHIR::OperationOutcome.new(
-  #     issue: [
-  #       {
-  #         severity: 'error',
-  #         code: 'required',
-  #         details: {
-  #           text: 'Patient.name: minimum required = 1, but only found 0'
-  #         },
-  #         expression: [
-  #           'Patient'
-  #         ]
-  #       }
-  #     ]
-  #   )
-  # end
-
+  let(:operation_outcome_failure) do
+    FHIR::OperationOutcome.new(
+      issue: [
+        {
+          severity: 'error',
+          code: 'required',
+          details: {
+            text: 'Bundle.type: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/Bundle|4.0.1)'
+          },
+          expression: [
+            'Bundle'
+          ]
+        }
+      ]
+    )
+  end
 
   def run(runnable, inputs = {})
     test_run_params = { test_session_id: test_session.id }.merge(runnable.reference_hash)
@@ -81,6 +80,8 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     let(:test) { suite }
     let(:bundle_resource_valid) { FHIR.from_contents(File.read('spec/fixtures/testBundleValid.json')) }
     let(:bundle_resource_invalid) { FHIR.from_contents(File.read('spec/fixtures/testBundleInvalid.json')) }
+    let(:bundle_resource_InvalidEndpointRef) { FHIR.from_contents(File.read('spec/fixtures/testBundleIncorrectEndpointRef.json')) }
+    let(:bundle_resource_MissingOrg) { FHIR.from_contents(File.read('spec/fixtures/testBundleMissingOrg.json')) }
     let(:capability_statement) { FHIR.from_contents(File.read('spec/fixtures/CapabilityStatement.json')) }
 
     it 'passes if a valid Bundle was received' do
@@ -99,28 +100,67 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       result = run(test, input)
 
-      expect(result.result).to eq('pass'), result.result_message
+      expect(result.result).to eq('pass'), "Expected a service base URL list that returns a publicly accessible valid Bundle resource to pass test."
       expect(capability_statement_request).to have_been_made.times(3)
     end
 
-    # it 'fails if a invalid Bundle was received' do
+    it 'fails if an invalid Bundle was received' do
       
-    #   stub_request(:get, service_base_url_list_endpoint)
-    #     .to_return(status: 200, body: bundle_resource_invalid.to_json, headers: {})
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource_invalid.to_json, headers: {})
 
       
-    #   uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
-    #   stub_request(:get, uri_template)
-    #     .to_return(status: 200, body: capability_statement.to_json, headers: {})
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
 
-    #   validation_request = stub_request(:post, "#{validator_url}/validate")
-    #     .with(query: hash_including({}))
-    #     .to_return(status: 200, body: operation_outcome_success.to_json)
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: operation_outcome_failure.to_json)
 
-    #   result = run(test, input)
+      result = run(test, input)
 
-    #   expect(result.result).to eq('pass'), result.result_message
-    # end
+      expect(result.result).to eq('fail'), "Expected if validation of an invalid Bundle resource fails that the entire test fails."
+    end
+
+
+    it 'fails if Bundle contains an Organization that references a fake Endpoint' do
+      
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource_InvalidEndpointRef.to_json, headers: {})
+
+      
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: operation_outcome_success.to_json)
+
+      result = run(test, input)
+
+      expect(result.result).to eq('fail'), "Expected if Organization within the bundle references a fake Endpoint then test will fail."
+    end
+
+    it 'fails if Bundle contains an Endpoint that does have an associated Organization reference' do
+      
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource_MissingOrg.to_json, headers: {})
+
+      
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: operation_outcome_success.to_json)
+
+      result = run(test, input)
+
+      expect(result.result).to eq('fail'), "Expected if Endpoint within bundle does not have an Organization that references it then test will fail"
+    end
 
 
   end
