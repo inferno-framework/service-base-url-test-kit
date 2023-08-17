@@ -24,7 +24,7 @@
               ]
             }
         ],
-        "address": "http://example.com/fhir/1"
+        "address": "https://fhir-myrecord-sc.cerner.com/r4/725ea83c-53c1-458f-a3a4-190e038b73c9/"
       }
     },
     {
@@ -79,7 +79,7 @@
               ]
             }
         ],
-        "address": "http://example.com/fhir/1"
+        "address": "https://fhir-myrecord-sc.cerner.com/r4/a5f4ce6b-ab0a-413b-affc-47ff1650194e/"
       }
     },
     {
@@ -134,7 +134,7 @@
               ]
             }
         ],
-        "address": "http://example.com/fhir/1"
+        "address": "https://fhir-myrecord-sc.cerner.com/r4/5cec35cb-ca56-453f-a1d3-fc5e20bab214/"
       }
     },
     {
