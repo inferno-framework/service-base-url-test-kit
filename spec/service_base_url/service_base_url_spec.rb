@@ -57,11 +57,6 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     end
     Inferno::TestRunner.new(test_session:, test_run:).run(runnable)
   end
-
-  #suite.groups.first.tests.first
-
-  # require 'debug/open_nonstop'
-  # debugger
   
   describe 'Service Base URL Tests' do
     let(:test) { suite }
@@ -107,10 +102,10 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       result = run(test, input)
 
-      expect(result.result).to eq('fail'), "Expected if validation of an invalid Bundle resource fails that the entire test fails."
+      expect(result.result).to eq('fail'), "Expected if validation servicer responds with a validation fail or Bundle resource that the test fails."
     end
 
-    it 'fails if Bundle contains endpoints that do not return a successful capability statement' do
+    it 'fails if Bundle contains endpoint that do not return a successful capability statement' do
       
       # change one of the Endpoint addresses to a URL that does not successfully return a capability statement
       bundle_resource.entry[4].resource.address = "#{base_url}/fake/address"
@@ -132,8 +127,28 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       result = run(test, input)
 
-      expect(result.result).to eq('fail'), "Expected test to fail when Bundle contains endpoint that does not return a successful capability statement"
+      expect(result.result).to eq('fail'), "Expected test to fail when Bundle contains endpoint that does not return a successful capability statement."
       expect(capability_statement_request_success).to have_been_made.times(2)
+    end
+
+    it 'fails if Bundle contains endpoint that has an invalid URL in the address field' do
+
+      bundle_resource.entry[4].resource.address = "invalid_url%.com"
+      
+      stub_request(:get, service_base_url_list_endpoint)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+      
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      capability_statement_request = stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: operation_outcome_success.to_json)
+
+      result = run(test, input)
+
+      expect(result.result).to eq('fail'), "Expected test to fail when Bundle contains endpoint that has an invalid URL in address field."
     end
 
     it 'fails if Bundle contains an Organization that references a fake Endpoint' do
@@ -176,7 +191,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       result = run(test, input)
 
-      expect(result.result).to eq('fail'), "Expected if Organization within the bundle references a fake Endpoint then test will fail."
+      expect(result.result).to eq('fail'), "Expected if Organization within the bundle references an Endpoint not in the Bundle, then test will fail."
     end
 
     it 'fails if Bundle contains an Endpoint that does have an associated Organization reference' do
@@ -198,7 +213,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       result = run(test, input)
 
-      expect(result.result).to eq('fail'), "Expected if Endpoint within bundle does not have an Organization that references it then test will fail"
+      expect(result.result).to eq('fail'), "Expected if Endpoint within bundle does not have an Organization that references it, then test will fail."
     end
   end
 end
