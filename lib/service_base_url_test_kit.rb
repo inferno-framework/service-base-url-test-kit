@@ -14,7 +14,7 @@ module ServiceBaseURLTestKit
       route :get, File.join('/examples/', filename), my_bundle_route_handler
     end
 
-    # All FHIR validation requsets will use this FHIR validator
+    # All FHIR validation requests will use this FHIR validator
     validator :default do
       url ENV.fetch('VALIDATOR_URL', 'http://validator_service:4567')
     end

@@ -24,7 +24,7 @@
               ]
             }
         ],
-        "address": "http://test.fhir.org/r4/"
+        "address": "http://hapi.fhir.org/baseR4"
       }
     },
     {
@@ -79,7 +79,7 @@
               ]
             }
         ],
-        "address": "http://test.fhir.org/r4/"
+        "address": "http://hapi.fhir.org/baseR4"
       }
     },
     {
@@ -134,7 +134,7 @@
               ]
             }
         ],
-        "address": "http://test.fhir.org/r4/"
+        "address": "http://hapi.fhir.org/baseR4"
       }
     },
     {

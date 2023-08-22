@@ -49,17 +49,6 @@ module ServiceBaseURLTestKit
       .map(&:id)
       .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
     end
-    
-    require 'uri'
-    
-    # @private
-    def valid_url?(url)
-      uri = URI.parse(url)
-      uri.is_a?(URI::HTTP) && uri.host.present?
-    rescue URI::InvalidURIError
-      false
-    end
-
 
     test do
       title 'Server returns publicly accessible Service Base URL List'
@@ -170,15 +159,12 @@ module ServiceBaseURLTestKit
         .select { |resource| resource.resourceType == 'Endpoint' }
         .map(&:address)
         .each do |address|
-          assert valid_url?(address), "#{address} is not a valid URL" 
+          assert_valid_http_uri(address) 
 
-          client = FHIR::Client.new(address)
-          client.capability_statement
-          
-          assert client.reply.response[:code] == 200, "Endpoint with address #{address} did not return a successful 200 response when querying its capability statement"
-          cap_stat = FHIR.from_contents(client.reply.response[:body])
-          assert cap_stat.resourceType == "CapabilityStatement", "Endpoint with address #{address} did not return a capability statement resource"          
-
+          address = address.delete_suffix("/")
+          get("#{address}/metadata", client: nil)
+          assert_response_status(200)
+          assert_resource_type(:capability_statement)        
         end
       end      
     end
