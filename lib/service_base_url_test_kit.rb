@@ -1,4 +1,5 @@
 require_relative 'service_base_url_test_kit/service_base_url_group'
+require 'erb'
 
 module ServiceBaseURLTestKit
   class ServiceBaseURLTestSuite < Inferno::TestSuite
@@ -8,6 +9,11 @@ module ServiceBaseURLTestKit
 
     Dir.each_child(File.join(__dir__, '/service_base_url_test_kit/examples/')) do |filename|
       my_bundle = File.read(File.join(__dir__, 'service_base_url_test_kit/examples/', filename))
+      if filename.end_with?('.erb')
+        erb_template = ERB.new(my_bundle)
+        my_bundle = JSON.parse(erb_template.result).to_json
+        filename = filename.delete_suffix('.erb')
+      end
       my_bundle_route_handler = proc { [200, { 'Content-Type' => 'application/json' }, [my_bundle]] }
       
       # Serve a JSON file at INFERNO_PATH/custom/service_base_url_test_kit_suite/examples/filename
