@@ -21,7 +21,8 @@ module ServiceBaseURLTestKit
     id :service_base_url_group
 
     input :service_base_url_list_endpoint,
-        title: 'Service Base URL List endpoint URL'
+        title: 'Service Base URL List endpoint URL',
+        description: 'Insert the URL to the server\'s public Service Base URL List'
 
     http_client do
       url :service_base_url_list_endpoint
