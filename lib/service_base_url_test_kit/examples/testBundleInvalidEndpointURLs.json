@@ -83,6 +83,37 @@
       }
     },
     {
+      "fullUrl" : "https://example.com/base/Organization/example-organization-2",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "example-organization-2",
+        "name": "Test Medical Center 2",
+        "active": true,
+        "identifier" : [
+            {
+              "system" : "http://hl7.org/fhir/sid/us-npi",
+              "value" : "1376083733"
+            }
+        ],
+        "address": [
+          {
+            "line": [
+              "45 Konopelski Alley"
+            ],
+            "city": "Schuppefort",
+            "state": "NY",
+            "postalCode": "99473",
+            "country": "United States of America"
+          }
+        ],
+        "endpoint" : [
+            {
+              "reference" : "Endpoint/example-endpoint-2"
+            }
+        ]
+      }
+    },
+    {
       "fullUrl" : "https://example.com/base/Endpoint/example-endpoint-3",
       "resource": {
         "resourceType": "Endpoint",
