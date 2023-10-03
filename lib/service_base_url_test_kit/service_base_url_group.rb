@@ -2,6 +2,13 @@ module ServiceBaseURLTestKit
   class ServiceBaseURLGroup < Inferno::TestGroup
     title 'Service Base URL List Tests'
     description %(    
+
+    For systems that provide the service base URL bundle at a URL, please run all
+    tests within this group.  While it is the expectation of the specification for
+    the service base URL bundle to be served at a public-facing endpoint, testers
+    can run any individual component test if bundles are not served via endpoint by
+    pasting the bundle as a test input.
+
     These tests verify that the server makes Service Base URL list publicly available in the Bundle format with valid Endpoint and Organization entries.
 
     A Certified API developer must publish, at no charge, the service base URLs and related organizational details that can be used by patients to access their electronic health information
@@ -26,7 +33,7 @@ module ServiceBaseURLTestKit
 
     http_client do
       url :service_base_url_list_endpoint
-      headers 'Content-Type': 'application/json'
+      headers 'Accept': 'application/json, application/fhir+json'
     end
 
     # @private
@@ -163,7 +170,7 @@ module ServiceBaseURLTestKit
           assert_valid_http_uri(address) 
 
           address = address.delete_suffix("/")
-          get("#{address}/metadata", client: nil)
+          get("#{address}/metadata", client: nil, headers: {'Accept': 'application/json, application/fhir+json'})
           assert_response_status(200)
           assert_resource_type(:capability_statement)        
         end
@@ -175,6 +182,7 @@ module ServiceBaseURLTestKit
     test do
       title 'Service Base URL List Bundle contains valid Organization resources.'
       description %(
+
         Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according to US Core.
 
         Each Organization must:
