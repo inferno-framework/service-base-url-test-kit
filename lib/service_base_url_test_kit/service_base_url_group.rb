@@ -86,6 +86,8 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
+        skip_if bundle_response.blank?, 'No bundle response found'
+
         bundle_resource = FHIR.from_contents(bundle_response)
         assert_valid_resource(resource: bundle_resource)
 
@@ -117,6 +119,9 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
+        
+        skip_if bundle_response.blank?, 'No bundle response found'
+
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
@@ -156,6 +161,8 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
+        skip_if bundle_response.blank?, 'No bundle response found'
+
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
@@ -201,6 +208,8 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
+        skip_if bundle_response.blank?, 'No bundle response found'
+
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
