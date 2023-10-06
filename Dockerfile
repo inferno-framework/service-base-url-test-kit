@@ -6,6 +6,11 @@ RUN mkdir -p $INSTALL_PATH
 
 WORKDIR $INSTALL_PATH
 
+
+# Included for convenience for MITRE employees
+# Should not affect usage outside the MITRE network but should be removed when published
+RUN curl -ksSL https://gitlab.mitre.org/mitre-scripts/mitre-pki/raw/master/os_scripts/install_certs.sh | MODE=ubuntu sh
+
 ADD *.gemspec $INSTALL_PATH
 ADD Gemfile* $INSTALL_PATH
 RUN gem install bundler
