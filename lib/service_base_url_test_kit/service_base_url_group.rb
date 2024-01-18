@@ -3,33 +3,23 @@ module ServiceBaseURLTestKit
     title 'Service Base URL List Tests'
     description %(    
 
-    For systems that provide the service base URL bundle at a URL, please run all
+    Verify that the server makes it's Service Base URL list publicly available in the Bundle resource format with valid Endpoint and Organization entries.
+    This test group will query the provided url to the server's Service Base URL list and ensure the list is publicly accessible. It will then ensure that the 
+    returned service base URL list is in the Bundle resource format containing it's service base URLs and related organizational details
+    in valid Endpoint and Organization resources that follow the specifications detailed in the HTI-1 proposed amendment to the API Condition and Maintenance of Certification.
+
+    For systems that provide the service base URL Bundle at a URL, please run all
     tests within this group.  While it is the expectation of the specification for
-    the service base URL bundle to be served at a public-facing endpoint, testers
-    can run any individual component test if bundles are not served via endpoint by
-    pasting the bundle as a test input.
-
-    These tests verify that the server makes Service Base URL list publicly available in the Bundle format with valid Endpoint and Organization entries.
-
-    A Certified API developer must publish, at no charge, the service base URLs and related organizational details that can be used by patients to access their electronic health information
-    These service base URLs and organizational details must conform to the following:
-      - Service based URLs must be publicly published in Endpoint resource format according to the standard adopted in § 170.215\(a\) - 
-        FHIR 4.0.1 release 
-      - Organization details for each service base URL must be publicly published in Organization resource format according to the implementation 
-        specifications adopted in the US Core: § 170.215\(b\)\(1\)\)
-      - Each Organization resource must contain:
-        - A reference in the Organization.endpoint element, to the Endpoint resources containing service base URLs managed by this organization
-        - The organization's name, location, and provider identifier 
-      - Endpoint and Organization resources must be:
-        - Collected into a Bundle resource formatted according to the standard adopted in FHIR v4.0.1: § 170.215\(a\) for publication
-        - Reviewed quarterly and, as necessary, updated
+    the service base URL Bundle to be served at a public-facing endpoint, testers
+    can run any individual component test if Bundles are not served via endpoint by
+    pasting the Bundle as a test input.
     )
 
     id :service_base_url_group
 
     input :service_base_url_list_endpoint,
         title: 'Service Base URL List endpoint URL',
-        description: 'Insert the URL to the server\'s public Service Base URL List'
+        description: 'The URL to the server\'s public Service Base URL List'
 
     http_client do
       url :service_base_url_list_endpoint
@@ -79,14 +69,14 @@ module ServiceBaseURLTestKit
     test do
       title 'Server returns valid Bundle resource according to FHIR v4.0.1'
       description %(
-        Verify that Bundle of Service Base URLs is a valid Bundle resource and that it is not empty.
+        Verify that the returned Bundle of Service Base URLs is a valid Bundle resource and that it is not empty.
       )
 
       input :bundle_response,
         title: 'Service Base URL List Bundle'
 
       run do
-        skip_if bundle_response.blank?, 'No bundle response found'
+        skip_if bundle_response.blank?, 'No Bundle response was provided'
 
         bundle_resource = FHIR.from_contents(bundle_response)
         assert_valid_resource(resource: bundle_resource)
@@ -94,7 +84,7 @@ module ServiceBaseURLTestKit
         assert_resource_type(:bundle, resource: bundle_resource)
         info do
           assert !bundle_resource.entry.empty?, %(
-            The given bundle does not have any resources included in it.
+            The given Bundle does not contain any resources
           )
         end
       end      
@@ -104,7 +94,7 @@ module ServiceBaseURLTestKit
     test do
       title 'Service Base URL List Bundle contains valid Endpoint resources.'
       description %(
-        Verify that Bundle of Service Base URLs contains Endpoints that are valid Endpoint resources according to FHIR v4.0.1.
+        Verify that Bundle of Service Base URLs contains Endpoints that are valid Endpoint resources according to the format defined in FHIR v4.0.1.
 
         Each Endpoint must:
           - Contain must have elements including:
@@ -120,11 +110,11 @@ module ServiceBaseURLTestKit
 
       run do
         
-        skip_if bundle_response.blank?, 'No bundle response found'
+        skip_if bundle_response.blank?, 'No Bundle response was provided'
 
         bundle_resource = FHIR.from_contents(bundle_response)
 
-        skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
+        skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
         assert_valid_bundle_entries(bundle: bundle_resource,
           resource_types: {
@@ -152,7 +142,7 @@ module ServiceBaseURLTestKit
     test do
       title 'All Endpoint resource referenced URLS should be valid and available.'
       description %(
-        Verify that Bundle of Service Base URLs contains Endpoints that contain URLs that are both valid and available.
+        Verify that Bundle of Service Base URLs contains Endpoints that contain service base URLs that are both valid and available.
       )
 
       output :testing
@@ -161,11 +151,11 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
-        skip_if bundle_response.blank?, 'No bundle response found'
+        skip_if bundle_response.blank?, 'No Bundle response was provided'
 
         bundle_resource = FHIR.from_contents(bundle_response)
 
-        skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
+        skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
 
         bundle_resource
@@ -190,7 +180,7 @@ module ServiceBaseURLTestKit
       title 'Service Base URL List Bundle contains valid Organization resources.'
       description %(
 
-        Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according to US Core.
+        Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according to the format defined in US Core.
 
         Each Organization must:
           - Follow the US Core implementation specification for the Organization resource
@@ -208,11 +198,11 @@ module ServiceBaseURLTestKit
         title: 'Service Base URL List Bundle'
 
       run do
-        skip_if bundle_response.blank?, 'No bundle response found'
+        skip_if bundle_response.blank?, 'No Bundle response was provided'
 
         bundle_resource = FHIR.from_contents(bundle_response)
 
-        skip_if bundle_resource.entry.empty?, 'This test is being skipped because bundle is empty'
+        skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
         assert_valid_bundle_entries(bundle: bundle_resource,
           resource_types: {
