@@ -6,7 +6,7 @@ module ServiceBaseURLTestKit
     Verify that the server makes it's Service Base URL list publicly available in the Bundle resource format with valid Endpoint and Organization entries.
     This test group will query the provided url to the server's Service Base URL list and ensure the list is publicly accessible. It will then ensure that the 
     returned service base URL list is in the Bundle resource format containing it's service base URLs and related organizational details
-    in valid Endpoint and Organization resources that follow the specifications detailed in the HTI-1 proposed amendment to the API Condition and Maintenance of Certification.
+    in valid Endpoint and Organization resources that follow the specifications detailed in the HTI-1 rule to the API Condition and Maintenance of Certification.
 
     For systems that provide the service base URL Bundle at a URL, please run all
     tests within this group.  While it is the expectation of the specification for

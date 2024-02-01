@@ -1,22 +1,31 @@
 # Service Base URL Test Kit
 
 
-The **Service Base URL Test Kit** is a testing tool that provides a set of tests to validate conformance to the [HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program) [proposed amendment](https://www.federalregister.gov/d/2023-07229/p-195) to the API Condition and Maintenance of Certification to include the requirement for Certified API Developers with patient-facing apps to publish their service base URLs in [a specified format](https://www.federalregister.gov/d/2023-07229/p-2342).
+The **Service Base URL Test Kit** is a testing tool that provides a set of tests
+to validate conformance to the
+[HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program)
+[rule](https://www.federalregister.gov/d/2023-07229/p-195) to the API Condition
+and Maintenance of Certification to include the requirement for Certified API
+Developers with patient-facing apps to publish their service base URLs in [a
+specified format](https://www.federalregister.gov/d/2023-07229/p-2342).
 
-This proposed amendment requires that a Certified API developer must publish, at no charge, the service base URLs and related organizational details that can be used by patients to access their electronic health information. These service base URLs and organizational details must conform to the following:
-  - Service based URLs must be publicly published in Endpoint resource format according to the standard adopted in § 170.215(a) - FHIR 4.0.1 release 
-  - Organization details for each service base URL must be publicly published in Organization resource format according to the implementation specifications adopted in the US Core: § 170.215(b)(1))
+This HTI-1 rule requires that a Certified API developer must publish, at no
+charge, the service base URLs and related organizational details that can be
+used by patients to access their electronic health information. These service
+base URLs and organizational details must conform to the following:
+  - Service based URLs must be publicly published in Endpoint resource format
+    according to the standard adopted in § 170.215(a) - FHIR 4.0.1 release 
+  - Organization details for each service base URL must be publicly published in
+    Organization resource format according to the standard adopted in §
+    170.215(a) - FHIR 4.0.1 release 
   - Each Organization resource must contain:
-    - A reference in the Organization.endpoint element, to the Endpoint resources containing service base URLs managed by this organization
+    - A reference in the Organization.endpoint element, to the Endpoint
+      resources containing service base URLs managed by this organization
     - The organization's name, location, and provider identifier 
     - Endpoint and Organization resources must be:
-      - Collected into a Bundle resource formatted according to the standard adopted in FHIR v4.0.1: § 170.215(a) for publication
+      - Collected into a Bundle resource formatted according to the standard
+        adopted in FHIR v4.0.1: § 170.215(a) for publication
       - Reviewed quarterly and, as necessary, updated
-
-This test kit is [open source](#license) and freely available for use or
-adoption by the health IT community including EHR vendors, health app
-developers, and testing labs. It is an approved test method for the Service Base URL publication criterion in the Health and Human Services Department proposed rule by the
-Office of the National Coordinator for Health IT (ONC).
 
 The Service Base URL Test Kit is built using the [Inferno
 Framework](https://inferno-framework.github.io/).  The Inferno Framework is
@@ -25,14 +34,17 @@ FHIR-based data exchange.
 
 ## Reporting Issues
 
-This is a draft set of tests and may contain errors or issues, please provide feedback on these tests within the [GitHub Issues](https://github.com/inferno-framework/service-base-url-test-kit/issues).
+This is a draft set of tests and may contain errors or issues, please provide
+feedback on these tests within the [GitHub
+Issues](https://github.com/inferno-framework/service-base-url-test-kit/issues).
 
 ## Instructions
 
 - Clone this repo.
 - Run `setup.sh` in this repo.
 - Run `run.sh` in this repo.
-- Navigate to `http://localhost`. The Service Base URL test suite will be available.
+- Navigate to `http://localhost`. The Service Base URL test suite will be
+  available.
 
 See the [Inferno Framework
 Documentation](https://inferno-framework.github.io/inferno-core/getting-started.html#getting-started-for-inferno-users)

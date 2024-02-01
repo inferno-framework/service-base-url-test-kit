@@ -8,7 +8,7 @@ module ServiceBaseURLTestKit
     description %(
       This test kit provides a draft set of tests to validate conformance to the
       [HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program)
-      [proposed amendment](https://www.federalregister.gov/d/2023-07229/p-195)
+      [rule](https://www.federalregister.gov/d/2023-07229/p-195)
       to the API Condition and Maintenance of Certification to include the
       requirement for Certified API Developers with patient-facing apps to
       publish their service base URLs in [a specified
@@ -19,10 +19,10 @@ module ServiceBaseURLTestKit
         - Service base URL list is publicly accessible
         - Service based URLs are published in the Endpoint resource format according to the standard adopted in § 170.215\(a\) - 
           FHIR 4.0.1 release 
-        - Organization details for each service base URL are published in the Organization resource format according to the implementation 
-          specifications adopted in the US Core: § 170.215\(b\)\(1\)\)
+        - Organization details for each service base URL are published in the Organization resource format according to the standard 
+          adopted in § 170.215\(a\) - FHIR 4.0.1 release
         - Each Endpoint resource must:
-          - Have at least one Organizatin resource that references it in the Bundle
+          - Have at least one Organization resource that references it in the Bundle
         - Each Organization resource must:
           - Have a populated Organization.endpoint field that contains references to the Endpoint resources containing service base URLs managed by this organization
           - Contain the organization's name, location, and provider identifier 
