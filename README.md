@@ -4,7 +4,7 @@
 The **Service Base URL Test Kit** is a testing tool that provides a set of tests
 to validate conformance to the
 [HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program)
-[rule](https://www.federalregister.gov/d/2023-07229/p-195) to the API Condition
+[rule](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)) from the API Condition
 and Maintenance of Certification to include the requirement for Certified API
 Developers with patient-facing apps to publish their service base URLs in [a
 specified format](https://www.federalregister.gov/d/2023-07229/p-2342).
