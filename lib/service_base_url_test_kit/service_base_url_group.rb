@@ -48,8 +48,8 @@ module ServiceBaseURLTestKit
       run_as_group
 
       input :service_base_url_list_endpoint,
-      title: 'Service Base URL List endpoint URL',
-      description: 'The URL to the server\'s public Service Base URL List'
+        title: 'Service Base URL List endpoint URL',
+        description: 'The URL to the server\'s public Service Base URL List'
 
       http_client do
         url :service_base_url_list_endpoint
@@ -84,6 +84,11 @@ module ServiceBaseURLTestKit
       Maintenance of Certification.)
       run_as_group
 
+      input :bundle_response,
+        title: 'Service Base URL List Bundle',
+        description: 'The server\'s Service Base URL List in the JSON string format'
+
+
       #  Valid BUNDLE TESTS
       test do
         id :service_base_url_valid_bundle
@@ -91,9 +96,6 @@ module ServiceBaseURLTestKit
         description %(
           Verify that the returned Bundle of Service Base URLs is a valid Bundle resource and that it is not empty.
         )
-
-        input :bundle_response,
-          title: 'Service Base URL List Bundle'
 
         run do
           skip_if bundle_response.blank?, 'No Bundle response was provided'
@@ -125,9 +127,6 @@ module ServiceBaseURLTestKit
             - Contain a URL in the address field
             - Have at least one Organization resource in the Bundle that references it
         )
-
-        input :bundle_response,
-          title: 'Service Base URL List Bundle'
 
         run do
           
@@ -168,9 +167,6 @@ module ServiceBaseURLTestKit
         )
 
         output :testing
-
-        input :bundle_response,
-          title: 'Service Base URL List Bundle'
 
         run do
           skip_if bundle_response.blank?, 'No Bundle response was provided'
@@ -215,9 +211,6 @@ module ServiceBaseURLTestKit
               - Must reference at least one Endpoint resource in the endpoint field
               - Must reference only Endpoints that are contained in the Service Base URL Bundle
         )
-
-        input :bundle_response,
-          title: 'Service Base URL List Bundle'
 
         run do
           skip_if bundle_response.blank?, 'No Bundle response was provided'
