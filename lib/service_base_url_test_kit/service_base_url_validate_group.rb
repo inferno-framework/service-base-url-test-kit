@@ -1,15 +1,15 @@
 module ServiceBaseURLTestKit
   class ServiceBaseURLBundleTestGroup < Inferno::TestGroup
-    id :service_base_url_bundle_tests
-    title 'Service Base URL List Validation'
+    id :service_base_url_validate_list
+    title 'Validate Service Base URL List'
     description %(
-      These tests ensure that the server's Service Base URL list is in the Bundle resource format, with its service base URLs and organizational details contained in valid Endpoint and Organization entries that that follow the specifications detailed in the HTI-1 rule in the API Condition and Maintenance of Certification.
+      These tests ensure that the developer's Service Base URL list is in the Bundle resource format, with its service base URLs and organizational details contained in valid Endpoint and Organization entries that follow the specifications detailed in the HTI-1 rule in the API Condition and Maintenance of Certification.
     )
     run_as_group
 
     input :bundle_response,
       title: 'Service Base URL List Bundle',
-      description: 'The server\'s Service Base URL List in the JSON string format'
+      description: 'The developer\'s Service Base URL List in the JSON string format'
     
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
@@ -59,7 +59,7 @@ module ServiceBaseURLTestKit
     # VALID ENDPOINT TESTS
     test do
       id :service_base_url_valid_endpoints
-      title 'Service Base URL List Bundle contains valid Endpoint resources.'
+      title 'Service Base URL List contains valid Endpoint resources.'
       description %(
         Verify that Bundle of Service Base URLs contains Endpoints that are valid Endpoint resources according to the format defined in FHIR v4.0.1.
 
@@ -140,7 +140,7 @@ module ServiceBaseURLTestKit
     # ORGANIZATION TESTS
     test do
       id :service_base_url_valid_organizations
-      title 'Service Base URL List Bundle contains valid Organization resources'
+      title 'Service Base URL List contains valid Organization resources'
       description %(
 
         Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according to the format defined in FHIR v4.0.1.

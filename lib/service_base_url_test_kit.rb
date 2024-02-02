@@ -1,5 +1,5 @@
 require_relative 'service_base_url_test_kit/version'
-require_relative 'service_base_url_test_kit/service_base_url_group'
+require_relative 'service_base_url_test_kit/service_base_url_test_group'
 require 'erb'
 
 module ServiceBaseURLTestKit
@@ -65,6 +65,6 @@ module ServiceBaseURLTestKit
       end
     end
 
-    group from: :service_base_url_group
+    group from: :service_base_url_test_group
   end
 end
