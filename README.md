@@ -4,10 +4,11 @@
 The **Service Base URL Test Kit** is a testing tool that provides a set of tests
 to validate conformance to the
 [HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program)
-[rule](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)) from the API Condition
-and Maintenance of Certification to include the requirement for Certified API
-Developers with patient-facing apps to publish their service base URLs in [a
-specified format](https://www.federalregister.gov/d/2023-07229/p-2342).
+[rule](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2))
+from the API Condition and Maintenance of Certification to include the
+requirement for Certified API Developers with patient-facing apps to publish
+their service base URLs in [a specified
+format](https://www.federalregister.gov/d/2023-07229/p-2342).
 
 This HTI-1 rule requires that a Certified API developer must publish, at no
 charge, the service base URLs and related organizational details that can be
@@ -16,8 +17,8 @@ base URLs and organizational details must conform to the following:
   - Service based URLs must be publicly published in Endpoint resource format
     according to the standard adopted in § 170.215(a) - FHIR 4.0.1 release 
   - Organization details for each service base URL must be publicly published in
-    Organization resource format according to the standard adopted in §
-    170.215(a) - FHIR 4.0.1 release 
+    Organization resource format according to the standard adopted in
+    §170.215(a) - FHIR 4.0.1 release 
   - Each Organization resource must contain:
     - A reference in the Organization.endpoint element, to the Endpoint
       resources containing service base URLs managed by this organization
@@ -27,6 +28,16 @@ base URLs and organizational details must conform to the following:
         adopted in FHIR v4.0.1: § 170.215(a) for publication
       - Reviewed quarterly and, as necessary, updated
 
+This test kit is provided as a preview for feedback and is not currently
+intended for certification. A version of these tests will be migrated into a
+future version of the [ONC (g)(10) Standardized API Test
+Kit](https://github.com/onc-healthit/onc-certification-g10-test-kit).
+
+While these tests do not specifically verify conformance to [Patient-Access
+Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within the
+draft SMART App Launch v2.2.0 standard, systems that implement that standard
+should pass these tests. Please report an issue if there are any problems.
+
 The Service Base URL Test Kit is built using the [Inferno
 Framework](https://inferno-framework.github.io/).  The Inferno Framework is
 designed for reuse and aims to make it easier to build test kits for any
@@ -34,9 +45,11 @@ FHIR-based data exchange.
 
 ## Reporting Issues
 
-This is a draft set of tests and may contain errors or issues, please provide
-feedback on these tests within the [GitHub
-Issues](https://github.com/inferno-framework/service-base-url-test-kit/issues).
+This is a draft set of tests and may contain errors or issues. Please provide
+feedback on these tests by creating an issue in
+[GitHub](https://github.com/inferno-framework/service-base-url-test-kit/issues),
+or by reaching out to the team on the [Inferno FHIR Zulip
+channel](https://chat.fhir.org/#narrow/stream/179309-inferno). 
 
 ## Instructions
 
@@ -63,7 +76,6 @@ Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
-
 
 ## Trademark Notice
 
