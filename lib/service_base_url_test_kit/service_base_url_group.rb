@@ -4,7 +4,7 @@ require_relative 'service_base_url_endpoint_query_group'
 module ServiceBaseURLTestKit
   class ServiceBaseURLGroup < Inferno::TestGroup
     id :service_base_url_group
-    title 'Service Base URL List Tests'
+    title 'Retrieve and Validate Service Base URL List'
     description %(    
 
     Verify that the server makes its Service Base URL list publicly available in the Bundle resource format with valid Endpoint and Organization entries. This test group will query the provided url to the server's Service Base URL list and ensure the list is publicly accessible. It will then ensure that the returned service base URL list is in the Bundle resource format containing its service base URLs and related organizational details in valid Endpoint and Organization resources that follow the specifications detailed in the HTI-1 rule in the API Condition and Maintenance of Certification.
