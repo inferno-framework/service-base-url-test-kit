@@ -1,3 +1,4 @@
+require_relative 'service_base_url_test_kit/version'
 require_relative 'service_base_url_test_kit/service_base_url_group'
 require 'erb'
 
@@ -34,11 +35,19 @@ module ServiceBaseURLTestKit
       a draft set of tests and may contain errors or issues, please provide
       feedback on these tests within the [GitHub
       Issues](https://github.com/inferno-framework/service-base-url-test-kit/issues).
-      
-      Several publicly available examples of service base URLs are available as
-      'Presets'.  These have been included for reference to highlight how
-      existing implementations may differ from the proposed specified format.
     )
+    version VERSION
+
+    links [
+      {
+        label: 'Report Issue',
+        url: 'https://github.com/onc-healthit/onc-certification-g10-test-kit/issues/'
+      },
+      {
+        label: 'Open Source',
+        url: 'https://github.com/onc-healthit/onc-certification-g10-test-kit/'
+      }
+    ]
 
     Dir.each_child(File.join(__dir__, '/service_base_url_test_kit/examples/')) do |filename|
       my_bundle = File.read(File.join(__dir__, 'service_base_url_test_kit/examples/', filename))
@@ -59,6 +68,10 @@ module ServiceBaseURLTestKit
     # All FHIR validation requests will use this FHIR validator
     validator :default do
       url ENV.fetch('VALIDATOR_URL', 'http://validator_service:4567')
+
+      exclude_message do |message|
+        message.message.include?('A resource should have narrative for robust management')
+      end
     end
 
     group from: :service_base_url_group
