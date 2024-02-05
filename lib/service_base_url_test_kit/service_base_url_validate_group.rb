@@ -3,13 +3,18 @@ module ServiceBaseURLTestKit
     id :service_base_url_validate_list
     title 'Validate Service Base URL List'
     description %(
-      These tests ensure that the developer's Service Base URL list is in the Bundle resource format, with its service base URLs and organizational details contained in valid Endpoint and Organization entries that follow the specifications detailed in the HTI-1 rule in the API Condition and Maintenance of Certification.
+      These tests ensure that the developer's Service Base URL list is in the
+      Bundle resource format, with its service base URLs and organizational
+      details contained in valid Endpoint and Organization entries that follow
+      the specifications detailed in the HTI-1 rule in the API Condition and
+      Maintenance of Certification.
     )
     run_as_group
 
     input :bundle_response,
       title: 'Service Base URL List Bundle',
-      description: 'The developer\'s Service Base URL List in the JSON string format'
+      description: 'The developer\'s Service Base URL List in the JSON string format',
+      type: 'textarea'
     
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
@@ -59,9 +64,10 @@ module ServiceBaseURLTestKit
     # VALID ENDPOINT TESTS
     test do
       id :service_base_url_valid_endpoints
-      title 'Service Base URL List contains valid Endpoint resources.'
+      title 'Service Base URL List contains valid Endpoint resources'
       description %(
-        Verify that Bundle of Service Base URLs contains Endpoints that are valid Endpoint resources according to the format defined in FHIR v4.0.1.
+        Verify that Bundle of Service Base URLs contains Endpoints that are
+        valid Endpoint resources according to the format defined in FHIR v4.0.1.
 
         Each Endpoint must:
           - Contain must have elements including:
@@ -105,7 +111,7 @@ module ServiceBaseURLTestKit
     # ENDPOINT VALID URL TESTS
     test do
       id :service_base_url_valid_urls
-      title 'All Endpoint resource referenced URLS should be valid and available.'
+      title 'All Endpoint resource referenced URLS should be valid and available'
       description %(
         Verify that Bundle of Service Base URLs contains Endpoints that contain service base URLs that are both valid and available.
       )
