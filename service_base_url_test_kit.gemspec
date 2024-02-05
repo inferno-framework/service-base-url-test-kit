@@ -1,6 +1,8 @@
+require_relative 'lib/service_base_url_test_kit/version'
+
 Gem::Specification.new do |spec|
   spec.name          = 'service_base_url_test_kit'
-  spec.version       = '0.0.1'
+  spec.version       = ServiceBaseURLTestKit::VERSION
   spec.authors       = ['Inferno Team']
   spec.email         = ['inferno@groups.mitre.org']
   spec.date          = Time.now.utc.strftime('%Y-%m-%d')
