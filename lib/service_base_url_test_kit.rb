@@ -4,7 +4,7 @@ require 'erb'
 
 module ServiceBaseURLTestKit
   class ServiceBaseURLTestSuite < Inferno::TestSuite
-    id :service_base_url_test_kit_suite
+    id :service_base_url
     title 'Service Base URL Test Suite'
     description %(
       This test kit provides a draft set of tests to validate conformance to
@@ -81,7 +81,7 @@ module ServiceBaseURLTestKit
       end
       my_bundle_route_handler = proc { [200, { 'Content-Type' => 'application/json' }, [my_bundle]] }
       
-      # Serve a JSON file at INFERNO_PATH/custom/service_base_url_test_kit_suite/examples/filename
+      # Serve a JSON file at INFERNO_PATH/custom/service_base_url/examples/filename
       route :get, File.join('/examples/', filename), my_bundle_route_handler
     end
 

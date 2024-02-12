@@ -1,7 +1,7 @@
 RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
-  let(:suite) { Inferno::Repositories::TestSuites.new.find('service_base_url_test_kit_suite') }
+  let(:suite) { Inferno::Repositories::TestSuites.new.find('service_base_url') }
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
-  let(:test_session) { repo_create(:test_session, test_suite_id: 'service_base_url_test_kit_suite') }
+  let(:test_session) { repo_create(:test_session, test_suite_id: 'service_base_url') }
   let(:base_url) { 'http://example.com/fhir' }
   let(:service_base_url_list_url) { 'http://example.com/fhir/bundleEndpointList' }
   let(:error_outcome) { FHIR::OperationOutcome.new(issue: [{ severity: 'error' }]) }
