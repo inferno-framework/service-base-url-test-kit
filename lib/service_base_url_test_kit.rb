@@ -36,11 +36,6 @@ module ServiceBaseURLTestKit
           - Collected into a Bundle resource formatted according to the standard
             adopted in FHIR v4.0.1: § 170.215\(a\) for publication
 
-      This test kit is provided as a preview for feedback and is not currently
-      intended for certification. A version of these tests will be migrated into
-      a future version of the [ONC (g)(10) Standardized API Test
-      Kit](https://github.com/onc-healthit/onc-certification-g10-test-kit).
-
       While these tests do not specifically verify conformance to
       [Patient-Access
       Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within
