@@ -28,9 +28,6 @@ base URLs and organizational details must conform to the following:
         adopted in FHIR v4.0.1: § 170.215(a) for publication
       - Reviewed quarterly and, as necessary, updated
 
-This test kit is provided as a preview for feedback and is not currently
-intended for certification.
-
 While these tests do not specifically verify conformance to [Patient-Access
 Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within the
 draft SMART App Launch v2.2.0 standard, systems that implement that standard

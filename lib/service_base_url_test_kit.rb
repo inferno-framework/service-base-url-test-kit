@@ -36,9 +36,6 @@ module ServiceBaseURLTestKit
           - Collected into a Bundle resource formatted according to the standard
             adopted in FHIR v4.0.1: § 170.215\(a\) for publication
 
-      This test kit is provided as a preview for feedback and is not currently
-      intended for certification.
-
       While these tests do not specifically verify conformance to
       [Patient-Access
       Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within
