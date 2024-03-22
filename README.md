@@ -29,9 +29,7 @@ base URLs and organizational details must conform to the following:
       - Reviewed quarterly and, as necessary, updated
 
 This test kit is provided as a preview for feedback and is not currently
-intended for certification. A version of these tests will be migrated into a
-future version of the [ONC (g)(10) Standardized API Test
-Kit](https://github.com/onc-healthit/onc-certification-g10-test-kit).
+intended for certification.
 
 While these tests do not specifically verify conformance to [Patient-Access
 Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within the
