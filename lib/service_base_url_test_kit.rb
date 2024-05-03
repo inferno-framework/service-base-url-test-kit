@@ -87,8 +87,6 @@ module ServiceBaseURLTestKit
 
     # All FHIR validation requests will use this FHIR validator
     fhir_resource_validator :default do
-      url ENV.fetch('FHIR_RESOURCE_VALIDATOR_URL', 'http://hl7_validator_service:3500')
-
       exclude_message do |message|
         VALIDATION_MESSAGE_FILTERS.any? { |filter| filter.match? message.message }
       end
