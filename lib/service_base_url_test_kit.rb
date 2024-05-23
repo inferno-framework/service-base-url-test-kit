@@ -80,12 +80,15 @@ module ServiceBaseURLTestKit
       route :get, File.join('/examples/', filename), my_bundle_route_handler
     end
 
-    # All FHIR validation requests will use this FHIR validator
-    validator :default do
-      url ENV.fetch('VALIDATOR_URL', 'http://validator_service:4567')
+    VALIDATION_MESSAGE_FILTERS = [
+      /A resource should have narrative for robust management/,
+      /\A\S+: \S+: URL value '.*' does not resolve/
+    ]
 
+    # All FHIR validation requests will use this FHIR validator
+    fhir_resource_validator :default do
       exclude_message do |message|
-        message.message.include?('A resource should have narrative for robust management')
+        VALIDATION_MESSAGE_FILTERS.any? { |filter| filter.match? message.message }
       end
     end
 

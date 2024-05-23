@@ -4,8 +4,6 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
   let(:test_session) { repo_create(:test_session, test_suite_id: 'service_base_url') }
   let(:base_url) { 'http://example.com/fhir' }
   let(:service_base_url_list_url) { 'http://example.com/fhir/bundleEndpointList' }
-  let(:error_outcome) { FHIR::OperationOutcome.new(issue: [{ severity: 'error' }]) }
-
   let(:runnable) { suite }
   let(:validator_url) { runnable.find_validator(:default).url }
   
@@ -14,34 +12,42 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       service_base_url_list_url:
     }
   end
-  let(:operation_outcome_success) do
-    FHIR::OperationOutcome.new(
-      issue: [
-        {
-          severity: 'information',
-          code: 'informational',
-          details: {
-            text: 'All OK'
-          }
-        }
-      ]
-    )
+  let(:validator_response_success) do
+    {
+      outcomes: [ {
+        fileInfo: {
+          fileName: "000.json",
+          fileContent: "{ \"resourceType\": \"Bundle\" }",
+          fileType: "json"
+        },
+        issues: []
+      } ],
+      sessionId: "4d9d2dc3-5df1-461f-a4d6-bfc2788a1933"
+    }
   end
-  let(:operation_outcome_failure) do
-    FHIR::OperationOutcome.new(
-      issue: [
-        {
-          severity: 'error',
-          code: 'required',
-          details: {
-            text: 'Bundle.type: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/Bundle|4.0.1)'
-          },
-          expression: [
-            'Bundle'
-          ]
-        }
-      ]
-    )
+  let(:validator_response_failure) do
+    {
+      outcomes: [ {
+        fileInfo: {
+          fileName: "000.json",
+          fileContent: "{ \"resourceType\": \"Bundle\" }",
+          fileType: "json"
+        },
+        issues: [{
+          source: "InstanceValidator",
+          line: 1,
+          col: 29,
+          location: "Bundle",
+          message: "Bundle.type: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/Bundle|4.0.1)",
+          messageId: "Validation_VAL_Profile_Minimum",
+          type: "STRUCTURE",
+          level: "ERROR",
+          display: "ERROR: Bundle: Bundle.type: minimum required = 1, but only found 0 (from http://hl7.org/fhir/StructureDefinition/Bundle|4.0.1)",
+          error: true
+        }]
+      } ],
+      sessionId: "b97dfb7c-f7c3-4980-81c3-8adc0024e75b"
+    }
   end
 
   def run(runnable, inputs = {})
@@ -75,7 +81,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_success.to_json)
+        .to_return(status: 200, body: validator_response_success.to_json)
 
       result = run(test, input)
 
@@ -98,7 +104,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       # validator returns a error operation outcome
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_failure.to_json)
+        .to_return(status: 200, body: validator_response_failure.to_json)
 
       result = run(test, input)
 
@@ -123,7 +129,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_success.to_json)
+        .to_return(status: 200, body: validator_response_success.to_json)
 
       result = run(test, input)
 
@@ -144,7 +150,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_success.to_json)
+        .to_return(status: 200, body: validator_response_success.to_json)
 
       result = run(test, input)
 
@@ -187,7 +193,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_success.to_json)
+        .to_return(status: 200, body: validator_response_success.to_json)
 
       result = run(test, input)
 
@@ -209,7 +215,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       validation_request = stub_request(:post, "#{validator_url}/validate")
         .with(query: hash_including({}))
-        .to_return(status: 200, body: operation_outcome_success.to_json)
+        .to_return(status: 200, body: validator_response_success.to_json)
 
       result = run(test, input)
 
