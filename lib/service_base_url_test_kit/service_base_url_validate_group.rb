@@ -15,7 +15,7 @@ module ServiceBaseURLTestKit
       title: 'Service Base URL List Bundle',
       description: 'The developer\'s Service Base URL List in the JSON string format',
       type: 'textarea'
-    
+
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
@@ -58,7 +58,7 @@ module ServiceBaseURLTestKit
             The given Bundle does not contain any resources
           )
         end
-      end      
+      end
     end
 
     # VALID ENDPOINT TESTS
@@ -79,7 +79,7 @@ module ServiceBaseURLTestKit
       )
 
       run do
-        
+
         skip_if bundle_response.blank?, 'No Bundle response was provided'
 
         bundle_resource = FHIR.from_contents(bundle_response)
@@ -91,7 +91,7 @@ module ServiceBaseURLTestKit
             'Endpoint': nil
           }
         )
-        
+
         endpoint_ids =
           bundle_resource
             .entry
@@ -105,7 +105,7 @@ module ServiceBaseURLTestKit
           assert !endpoint_referenced_orgs.empty?, "Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle."
 
         end
-      end      
+      end
     end
 
     # ENDPOINT VALID URL TESTS
@@ -132,14 +132,15 @@ module ServiceBaseURLTestKit
         .select { |resource| resource.resourceType == 'Endpoint' }
         .map(&:address)
         .each do |address|
-          assert_valid_http_uri(address) 
+          assert_valid_http_uri(address)
 
           address = address.delete_suffix("/")
-          get("#{address}/metadata", client: nil, headers: {'Accept': 'application/json, application/fhir+json'})
+          get("#{address}/metadata", client: nil, headers: {'Accept': 'application/fhir+json'})
           assert_response_status(200)
-          assert_resource_type(:capability_statement)        
+          assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+          assert_resource_type(:capability_statement)
         end
-      end      
+      end
     end
 
 
@@ -155,7 +156,7 @@ module ServiceBaseURLTestKit
           - Contain must have elements including:
             - active
             - name
-          - Include the organization's name, location, and provider identifier 
+          - Include the organization's name, location, and provider identifier
           - Use the endpoint field to reference Endpoints associated with the Organization:
             - Must reference only Endpoint resources in the endpoint field
             - Must reference at least one Endpoint resource in the endpoint field
@@ -174,7 +175,7 @@ module ServiceBaseURLTestKit
             'Organization': nil
           }
         )
-        
+
         endpoint_ids =
           bundle_resource
             .entry
@@ -188,14 +189,14 @@ module ServiceBaseURLTestKit
           assert !organization.endpoint.empty?, "Organization with id: #{organization.id} does not have the endpoint field populated"
           assert !organization.address.empty?, "Organization with id: #{organization.id} does not have the address field populated"
 
-          
+
           for endpoint_id_ref in organization.endpoint.map(&:reference)
             organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
             assert !organization_referenced_endpts.empty?, "Organization with id: #{organization.id} references an Endpoint that is not contained in this bundle."
-            
+
           end
-        end 
-      end      
+        end
+      end
     end
   end
 end
