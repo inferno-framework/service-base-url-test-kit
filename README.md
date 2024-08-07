@@ -20,7 +20,7 @@ provide feedback on these tests by reporting an issue in
 or by reaching out to the team on the [Inferno FHIR Zulip
 channel](https://chat.fhir.org/#narrow/stream/179309-inferno).
 
-Relevant requirements from the Conditions of [Maintenance of Certification -
+Relevant requirements from the [Conditions of Maintenance of Certification -
 Application programming interfaces](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)):
 
 > Service Base URL publication:
