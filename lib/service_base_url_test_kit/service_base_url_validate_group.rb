@@ -131,6 +131,7 @@ module ServiceBaseURLTestKit
         .map(&:resource)
         .select { |resource| resource.resourceType == 'Endpoint' }
         .map(&:address)
+        .uniq
         .each do |address|
           assert_valid_http_uri(address)
 
