@@ -6,7 +6,7 @@ module ServiceBaseURLTestKit
     id :service_base_url_test_group
     title 'Retrieve and Validate Service Base URL List'
     description %(    
-    Verify that the developer makes its Service Base URL publication is publicly available
+    Verify that the developer makes its Service Base URL publication publicly available
     in the Bundle resource format with valid Endpoint and Organization entries.
     This test group will issue a HTTP GET request against the supplied URL to
     retrieve the developer's Service Base URL list and ensure the list is
