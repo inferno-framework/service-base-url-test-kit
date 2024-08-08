@@ -7,7 +7,7 @@ module ServiceBaseURLTestKit
     id :service_base_url
     title 'Service Base URL Test Suite'
     description %(
-      This Test Kit provides a set of tests that verifies conformance of Service
+      This Test Kit provides a set of tests that verify conformance of Service
       Base URL publications to data format requirements as described in
       [Conditions of Maintenance of Certification - Application programming
       interfaces](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2))
