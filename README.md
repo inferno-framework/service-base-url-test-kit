@@ -1,6 +1,6 @@
 # Service Base URL Test Kit
 
-The **Service Base URL Test Kit** provides a set of tests that verifies
+The **Service Base URL Test Kit** provides a set of tests that verify
 conformance of Service Base URL publications to data format requirements as
 described in [Conditions of Maintenance of Certification - Application
 programming
