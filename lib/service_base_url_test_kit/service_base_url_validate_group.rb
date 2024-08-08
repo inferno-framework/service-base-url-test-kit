@@ -3,10 +3,10 @@ module ServiceBaseURLTestKit
     id :service_base_url_validate_list
     title 'Validate Service Base URL List'
     description %(
-      These tests ensure that the developer's Service Base URL list is in the
-      Bundle resource format, with its service base URLs and organizational
+      These tests ensure that the developer's Service Base URL publication is in
+      the Bundle resource format, with its service base URLs and organizational
       details contained in valid Endpoint and Organization entries that follow
-      the specifications detailed in the HTI-1 rule in the API Condition and
+      the specifications detailed in the HTI-1 rule and the API Condition and
       Maintenance of Certification.
     )
     run_as_group
@@ -157,7 +157,7 @@ module ServiceBaseURLTestKit
           - Contain must have elements including:
             - active
             - name
-          - Include the organization's name, location, and provider identifier
+          - Include the organization's name, location, and facility identifier
           - Use the endpoint field to reference Endpoints associated with the Organization:
             - Must reference only Endpoint resources in the endpoint field
             - Must reference at least one Endpoint resource in the endpoint field

@@ -1,54 +1,60 @@
 # Service Base URL Test Kit
 
+The **Service Base URL Test Kit** provides a set of tests that verify
+conformance of Service Base URL publications to data format requirements as
+described in [Conditions of Maintenance of Certification - Application
+programming
+interfaces](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2))
+and the [ONC HTI-1 Final
+Rule](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program).
+Please review the [Application Programming Interfaces Certification Companion
+Guide](https://www.healthit.gov/condition-ccg/application-programming-interfaces)
+for additional guidance.
 
-The **Service Base URL Test Kit** is a testing tool that provides a set of tests
-to validate conformance to the
-[HTI-1](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program)
-[rule](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2))
-from the API Condition and Maintenance of Certification to include the
-requirement for Certified API Developers with patient-facing apps to publish
-their service base URLs in [a specified
-format](https://www.federalregister.gov/d/2023-07229/p-2342).
-
-This HTI-1 rule requires that a Certified API developer must publish, at no
-charge, the service base URLs and related organizational details that can be
-used by patients to access their electronic health information. These service
-base URLs and organizational details must conform to the following:
-  - Service based URLs must be publicly published in Endpoint resource format
-    according to the standard adopted in § 170.215(a) - FHIR 4.0.1 release 
-  - Organization details for each service base URL must be publicly published in
-    Organization resource format according to the standard adopted in
-    §170.215(a) - FHIR 4.0.1 release 
-  - Each Organization resource must contain:
-    - A reference in the Organization.endpoint element, to the Endpoint
-      resources containing service base URLs managed by this organization
-    - The organization's name, location, and provider identifier 
-    - Endpoint and Organization resources must be:
-      - Collected into a Bundle resource formatted according to the standard
-        adopted in FHIR v4.0.1: § 170.215(a) for publication
-      - Reviewed quarterly and, as necessary, updated
-
-While these tests do not specifically verify conformance to [Patient-Access
-Brands](https://build.fhir.org/ig/HL7/smart-app-launch/brands.html) within the
-draft SMART App Launch v2.2.0 standard, systems that implement that standard
-should pass these tests. Please report an issue if there are any problems.
-
-The Service Base URL Test Kit is built using the [Inferno
-Framework](https://inferno-framework.github.io/).  The Inferno Framework is
-designed for reuse and aims to make it easier to build test kits for any
-FHIR-based data exchange.
-
-## Reporting Issues
-
-This is a draft set of tests and may contain errors or issues. Please provide
-feedback on these tests by creating an issue in
+This Test Kit is provided as a tool to help developers identify potential issues
+or problems with the structure of their Service Base URL publication.  Test
+failures do not necessarily indicate non-conformance to the Conditions of
+Maintenance of Certification.  Use of these tests is not required. Please
+provide feedback on these tests by reporting an issue in
 [GitHub](https://github.com/inferno-framework/service-base-url-test-kit/issues),
 or by reaching out to the team on the [Inferno FHIR Zulip
-channel](https://chat.fhir.org/#narrow/stream/179309-inferno). 
+channel](https://chat.fhir.org/#narrow/stream/179309-inferno).
 
-## Instructions
+Relevant requirements from the [Conditions of Maintenance of Certification -
+Application programming interfaces](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)):
 
-- Clone this repo.
+> Service Base URL publication:
+> 
+> For all Health IT Modules certified to § 170.315(g)(10), a Certified API
+> Developer must publish, at no charge, the service base URLs and related
+> organization details that can be used by patients to access their
+> electronic health information, by December 31, 2024. This includes all
+> customers regardless of whether the Health IT Modules certified to §
+> 170.315(g)(10) are centrally managed by the Certified API Developer or
+> locally deployed by an API Information Source. These service base URLs and
+> organization details must conform to the following:
+> 
+>   - Service base URLs must be publicly published in Endpoint resource format
+>     according to the standard adopted in § 170.215(a) (FHIR v4.0.1).
+>   - Organization details for each service base URL must be publicly published in Organization
+>     resource format according to the standard adopted in § 170.215(a) (FHIR v4.0.1). Each
+>     Organization resource must contain: 
+>     - A reference, in the Organization endpoint element, to the Endpoint
+>       resources containing service base URLs managed by this organization.
+>     - The organization’s name, location, and facility identifier.
+>   - Endpoint and Organization resources must be:
+>     - Collected into a Bundle resource formatted according to the standard
+>       adopted in § 170.215(a) (FHIR v4.0.01) for publication; 
+>     - and Reviewed quarterly and, as
+>       necessary, updated.
+
+
+## Local Use Instructions
+
+This Test Kit requires either Docker Desktop or Podman to be run in a local
+desktop environment.
+
+- Clone this repository.
 - Run `setup.sh` in this repo.
 - Run `run.sh` in this repo.
 - Navigate to `http://localhost`. The Service Base URL test suite will be
@@ -59,7 +65,7 @@ Documentation](https://inferno-framework.github.io/inferno-core/getting-started.
 for more information on running Inferno.
 
 ## License
-Copyright 2023 The MITRE Corporation
+Copyright 2024 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
