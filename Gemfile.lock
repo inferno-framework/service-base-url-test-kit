@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    service_base_url_test_kit (0.10.0)
+    service_base_url_test_kit (0.10.1)
       inferno_core (~> 0.4.37)
 
 GEM
