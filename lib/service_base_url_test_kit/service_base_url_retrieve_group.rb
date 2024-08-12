@@ -9,13 +9,9 @@ module ServiceBaseURLTestKit
     )
     run_as_group
 
-    input :service_base_url_list_url,
-      title: 'Service Base URL List URL',
-      description: 'The URL to the developer\'s public Service Base URL List'
-
     http_client do
       url :service_base_url_list_url
-      headers 'Accept': 'application/json, application/fhir+json'
+      headers Accept: 'application/json, application/fhir+json'
     end
 
     test do
@@ -26,15 +22,19 @@ module ServiceBaseURLTestKit
         accessed at the supplied URL location.
       )
 
+      input :service_base_url_list_url,
+            optional: true
+
       output :bundle_response
 
       makes_request :bundle_request
 
       run do
-        get
+        omit_if service_base_url_list_url.blank?, 'URL for Service Base URL List not Inputted.'
+
+        get(tags: ['service_base_url_bundle'])
         assert_response_status(200)
-        output bundle_response: resource.to_json
-      end      
+      end
     end
   end
 end

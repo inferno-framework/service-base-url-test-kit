@@ -8,34 +8,37 @@ module ServiceBaseURLTestKit
       details contained in valid Endpoint and Organization entries that follow
       the specifications detailed in the HTI-1 rule and the API Condition and
       Maintenance of Certification.
+
+      These tests may be run individually, bypassing the first test group, if the Service Base URL List Bundle input
+      is populated and the Service Base URL List URL is left blank (or if it does not successfully return a Service Base
+      URL List Bundle). You may insert your Service Base URL List Bundle in the JSON format in the Service Base URL List
+      Bundle input to validate your list without Inferno needing to retrieve the Bundle via a public-facing endpoint.
     )
     run_as_group
 
-    input :bundle_response,
-      title: 'Service Base URL List Bundle',
-      description: 'The developer\'s Service Base URL List in the JSON string format',
-      type: 'textarea'
+    input :service_base_url_bundle,
+          optional: true
 
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
-      .entry
-      .map(&:resource)
-      .select { |resource| resource.resourceType == 'Organization' }
-      .map { |resource| resource.endpoint }
-      .flatten
-      .map(&:reference)
-      .select { |reference| reference.include? endpoint_id }
+        .entry
+        .map(&:resource)
+        .select { |resource| resource.resourceType == 'Organization' }
+        .map(&:endpoint)
+        .flatten
+        .map(&:reference)
+        .select { |reference| reference.include? endpoint_id }
     end
 
     # @private
     def find_referenced_endpoint(bundle_resource, endpoint_id_ref)
       bundle_resource
-      .entry
-      .map(&:resource)
-      .select { |resource| resource.resourceType == 'Endpoint' }
-      .map(&:id)
-      .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
+        .entry
+        .map(&:resource)
+        .select { |resource| resource.resourceType == 'Endpoint' }
+        .map(&:id)
+        .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
     end
 
     #  Valid BUNDLE TESTS
@@ -47,8 +50,16 @@ module ServiceBaseURLTestKit
       )
 
       run do
+        bundle_response = if service_base_url_bundle.blank?
+                            load_tagged_requests('service_base_url_bundle')
+                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            requests.first.response_body
+                          else
+                            service_base_url_bundle
+                          end
         skip_if bundle_response.blank?, 'No Bundle response was provided'
 
+        assert_valid_json(bundle_response)
         bundle_resource = FHIR.from_contents(bundle_response)
         assert_valid_resource(resource: bundle_resource)
 
@@ -79,18 +90,24 @@ module ServiceBaseURLTestKit
       )
 
       run do
-
+        bundle_response = if service_base_url_bundle.blank?
+                            load_tagged_requests('service_base_url_bundle')
+                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            requests.first.response_body
+                          else
+                            service_base_url_bundle
+                          end
         skip_if bundle_response.blank?, 'No Bundle response was provided'
 
+        assert_valid_json(bundle_response)
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
         assert_valid_bundle_entries(bundle: bundle_resource,
-          resource_types: {
-            'Endpoint': nil
-          }
-        )
+                                    resource_types: {
+                                      Endpoint: nil
+                                    })
 
         endpoint_ids =
           bundle_resource
@@ -99,11 +116,10 @@ module ServiceBaseURLTestKit
             .select { |resource| resource.resourceType == 'Endpoint' }
             .map(&:id)
 
-
-        for endpoint_id in endpoint_ids
+        endpoint_ids.each do |endpoint_id|
           endpoint_referenced_orgs = find_referenced_org(bundle_resource, endpoint_id)
-          assert !endpoint_referenced_orgs.empty?, "Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle."
-
+          assert !endpoint_referenced_orgs.empty?,
+                 "Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle."
         end
       end
     end
@@ -113,30 +129,38 @@ module ServiceBaseURLTestKit
       id :service_base_url_valid_urls
       title 'All Endpoint resource referenced URLS should be valid and available'
       description %(
-        Verify that Bundle of Service Base URLs contains Endpoints that contain service base URLs that are both valid and available.
+        Verify that Bundle of Service Base URLs contains Endpoints that contain service base URLs that are both valid
+        and available.
       )
 
       output :testing
 
       run do
+        bundle_response = if service_base_url_bundle.blank?
+                            load_tagged_requests('service_base_url_bundle')
+                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            requests.first.response_body
+                          else
+                            service_base_url_bundle
+                          end
         skip_if bundle_response.blank?, 'No Bundle response was provided'
 
+        assert_valid_json(bundle_response)
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
-
         bundle_resource
-        .entry
-        .map(&:resource)
-        .select { |resource| resource.resourceType == 'Endpoint' }
-        .map(&:address)
-        .uniq
-        .each do |address|
+          .entry
+          .map(&:resource)
+          .select { |resource| resource.resourceType == 'Endpoint' }
+          .map(&:address)
+          .uniq
+          .each do |address|
           assert_valid_http_uri(address)
 
-          address = address.delete_suffix("/")
-          get("#{address}/metadata", client: nil, headers: {'Accept': 'application/fhir+json'})
+          address = address.delete_suffix('/')
+          get("#{address}/metadata", client: nil, headers: { Accept: 'application/json, application/fhir+json' })
           assert_response_status(200)
           assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
           assert_resource_type(:capability_statement)
@@ -144,14 +168,14 @@ module ServiceBaseURLTestKit
       end
     end
 
-
     # ORGANIZATION TESTS
     test do
       id :service_base_url_valid_organizations
       title 'Service Base URL List contains valid Organization resources'
       description %(
 
-        Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according to the format defined in FHIR v4.0.1.
+        Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according
+        to the format defined in FHIR v4.0.1.
 
         Each Organization must:
           - Contain must have elements including:
@@ -165,36 +189,43 @@ module ServiceBaseURLTestKit
       )
 
       run do
+        bundle_response = if service_base_url_bundle.blank?
+                            load_tagged_requests('service_base_url_bundle')
+                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            requests.first.response_body
+                          else
+                            service_base_url_bundle
+                          end
         skip_if bundle_response.blank?, 'No Bundle response was provided'
 
+        assert_valid_json(bundle_response)
         bundle_resource = FHIR.from_contents(bundle_response)
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
         assert_valid_bundle_entries(bundle: bundle_resource,
-          resource_types: {
-            'Organization': nil
-          }
-        )
+                                    resource_types: {
+                                      Organization: nil
+                                    })
 
-        endpoint_ids =
-          bundle_resource
-            .entry
-            .map(&:resource)
-            .select { |resource| resource.resourceType == 'Endpoint' }
-            .map(&:id)
+        organization_resources = bundle_resource
+          .entry
+          .map(&:resource)
+          .select { |resource| resource.resourceType == 'Organization' }
 
+        organization_resources.each do |organization|
+          assert !organization.endpoint.empty?,
+                 "Organization with id: #{organization.id} does not have the endpoint field populated"
+          assert !organization.address.empty?,
+                 "Organization with id: #{organization.id} does not have the address field populated"
 
-        for organization in bundle_resource.entry.map(&:resource).select { |resource| resource.resourceType == 'Organization' }
+          endpoint_references = organization.endpoint.map(&:reference)
 
-          assert !organization.endpoint.empty?, "Organization with id: #{organization.id} does not have the endpoint field populated"
-          assert !organization.address.empty?, "Organization with id: #{organization.id} does not have the address field populated"
-
-
-          for endpoint_id_ref in organization.endpoint.map(&:reference)
+          endpoint_references.each do |endpoint_id_ref|
             organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
-            assert !organization_referenced_endpts.empty?, "Organization with id: #{organization.id} references an Endpoint that is not contained in this bundle."
-
+            assert !organization_referenced_endpts.empty?,
+                   "Organization with id: #{organization.id} references an Endpoint that is not contained in this
+                   bundle."
           end
         end
       end

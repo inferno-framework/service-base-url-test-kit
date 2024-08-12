@@ -39,18 +39,18 @@ module ServiceBaseURLTestKit
       170.315(g)(10) are centrally managed by the Certified API Developer or
       locally deployed by an API Information Source. These service base URLs and
       organization details must conform to the following:
-      
+
        - Service base URLs must be publicly published in Endpoint resource format
          according to the standard adopted in § 170.215(a) (FHIR v4.0.1).
        - Organization details for each service base URL must be publicly published in Organization
          resource format according to the standard adopted in § 170.215(a) (FHIR v4.0.1). Each
-         Organization resource must contain: 
+         Organization resource must contain:
           - A reference, in the Organization endpoint element, to the Endpoint
             resources containing service base URLs managed by this organization.
-          - The organization’s name, location, and facility identifier.
+          - The organization's name, location, and facility identifier.
        - Endpoint and Organization resources must be:
          - Collected into a Bundle resource formatted according to the standard
-            adopted in § 170.215(a) (FHIR v4.0.1) for publication; 
+            adopted in § 170.215(a) (FHIR v4.0.1) for publication;
          - and Reviewed quarterly and, as
             necessary, updated.
 
@@ -76,11 +76,9 @@ module ServiceBaseURLTestKit
         my_bundle = JSON.parse(erb_template.result).to_json
         filename = filename.delete_suffix('.erb')
       end
-      if filename.include?("CapabilityStatement")
-        filename = filename.delete_suffix('.json') + "/metadata"
-      end
+      filename = "#{filename.delete_suffix('.json')}/metadata" if filename.include?('CapabilityStatement')
       my_bundle_route_handler = proc { [200, { 'Content-Type' => 'application/json' }, [my_bundle]] }
-      
+
       # Serve a JSON file at INFERNO_PATH/custom/service_base_url/examples/filename
       route :get, File.join('/examples/', filename), my_bundle_route_handler
     end
