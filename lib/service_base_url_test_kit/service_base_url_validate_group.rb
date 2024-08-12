@@ -160,7 +160,7 @@ module ServiceBaseURLTestKit
           assert_valid_http_uri(address)
 
           address = address.delete_suffix('/')
-          get("#{address}/metadata", client: nil, headers: { Accept: 'application/json, application/fhir+json' })
+          get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
           assert_response_status(200)
           assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
           assert_resource_type(:capability_statement)
