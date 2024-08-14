@@ -27,6 +27,31 @@ module ServiceBaseURLTestKit
           ),
           optional: true
 
+    input :endpoint_availability_success_rate,
+          title: 'Endpoint Availability Success Rate',
+          description: %(
+            Select an option to choose how many Endpoints have to be available and send back a valid capability
+            statement for the Endpoint validation test to pass.
+          ),
+          type: 'radio',
+          options: {
+            list_options: [
+              {
+                label: 'All',
+                value: 'all'
+              },
+              {
+                label: 'At Least 1',
+                value: 'at_least_1'
+              },
+              {
+                label: 'None',
+                value: 'none'
+              }
+            ]
+          },
+          default: 'all'
+
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
@@ -170,16 +195,40 @@ module ServiceBaseURLTestKit
           )
         end
 
+        one_endpoint_valid = false
+
         endpoint_list.each_with_index do |address, index|
           assert_valid_http_uri(address)
 
-          next if endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index
+          next if endpoint_availability_success_rate == 'none' ||
+                  (endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index)
 
           address = address.delete_suffix('/')
           get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
-          assert_response_status(200)
-          assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
-          assert_resource_type(:capability_statement)
+
+          if endpoint_availability_success_rate == 'all'
+            assert_response_status(200)
+            assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+            assert_resource_type(:capability_statement)
+          else
+            warning do
+              assert_response_status(200)
+              assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+              assert_resource_type(:capability_statement)
+            end
+
+            if !one_endpoint_valid && response[:status] == 200 && resource.present? &&
+               resource.resourceType == 'CapabilityStatement'
+              one_endpoint_valid = true
+            end
+          end
+        end
+
+        if endpoint_availability_success_rate == 'at_least_1'
+          assert(one_endpoint_valid, %(
+            There were no Endpoints that were available and returned a valid Capability Statement in the Service Base
+            URL Bundle'
+          ))
         end
       end
     end
