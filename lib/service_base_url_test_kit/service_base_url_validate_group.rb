@@ -19,6 +19,14 @@ module ServiceBaseURLTestKit
     input :service_base_url_bundle,
           optional: true
 
+    input :endpoint_availability_limit,
+          title: 'Endpoint Availability Limit',
+          description: %(
+            Input a number to cap the number of Endpoints that Inferno will send requests to check for availability.
+            This can help speed up validation when there are large number of endpoints in the Service Base URL Bundle.
+          ),
+          optional: true
+
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
@@ -39,6 +47,12 @@ module ServiceBaseURLTestKit
         .select { |resource| resource.resourceType == 'Endpoint' }
         .map(&:id)
         .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
+    end
+
+    def get_endpoint_availability_limit(endpoint_availability_limit)
+      return if endpoint_availability_limit.blank?
+
+      endpoint_availability_limit.to_i
     end
 
     #  Valid BUNDLE TESTS
@@ -150,14 +164,19 @@ module ServiceBaseURLTestKit
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
-        bundle_resource
+        endpoint_list = bundle_resource
           .entry
           .map(&:resource)
           .select { |resource| resource.resourceType == 'Endpoint' }
           .map(&:address)
           .uniq
-          .each do |address|
+
+        check_limit = get_endpoint_availability_limit(endpoint_availability_limit)
+
+        endpoint_list.each_with_index do |address, index|
           assert_valid_http_uri(address)
+
+          next if check_limit.present? && index >= check_limit
 
           address = address.delete_suffix('/')
           get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
