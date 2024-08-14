@@ -169,6 +169,25 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(validation_request).to have_been_made.times(7)
     end
 
+    it 'passes and only checks the availability of number of endpoints equal to the endpoint availability limit' do
+      stub_request(:get, service_base_url_list_url)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      capability_statement_request_success = stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: validator_response_success.to_json)
+
+      result = run(test, service_base_url_list_url:, endpoint_availability_limit: 2)
+
+      expect(result.result).to eq('pass')
+      expect(capability_statement_request_success).to have_been_made.times(2)
+      expect(validation_request).to have_been_made.times(7)
+    end
+
     it 'fails if Bundle contains endpoint that has an invalid URL in the address field' do
       bundle_resource.entry[4].resource.address = 'invalid_url%.com'
 
