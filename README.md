@@ -14,8 +14,9 @@ for additional guidance.
 This Test Kit is provided as a tool to help developers identify potential issues
 or problems with the structure of their Service Base URL publication.  Test
 failures do not necessarily indicate non-conformance to the Conditions and
-Maintenance of Certification.  Use of these tests is not required. Please
-provide feedback on these tests by reporting an issue in
+Maintenance of Certification.  Use of these tests is not required for the
+participants of the ONC Health IT Certification Program. Please provide feedback
+on these tests by reporting an issue in
 [GitHub](https://github.com/inferno-framework/service-base-url-test-kit/issues),
 or by reaching out to the team on the [Inferno FHIR Zulip
 channel](https://chat.fhir.org/#narrow/stream/179309-inferno).
