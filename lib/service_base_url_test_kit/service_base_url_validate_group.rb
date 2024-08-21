@@ -147,8 +147,6 @@ module ServiceBaseURLTestKit
         and available.
       )
 
-      output :testing
-
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
