@@ -108,6 +108,17 @@ module ServiceBaseURLTestKit
             The given Bundle does not contain any resources
           )
         end
+
+        additional_resources = bundle_resource.entry
+          .map { |entry| entry.resource.resourceType }
+          .reject { |resource_type| ['Organization', 'Endpoint'].include?(resource_type) }
+          .uniq
+
+        warning do
+          assert(additional_resources.empty?, %(
+            The Service Base URL List contained the following additional resources other than Endpoint and
+            Organization resources: #{additional_resources.join(', ')}))
+        end
       end
     end
 
@@ -276,6 +287,11 @@ module ServiceBaseURLTestKit
           .entry
           .map(&:resource)
           .select { |resource| resource.resourceType == 'Organization' }
+
+        warning do
+          assert(organization_resources.length > 1,
+                 'The provided Service Base URL List contains only 1 Organization resource')
+        end
 
         organization_resources.each do |organization|
           assert !organization.endpoint.empty?,
