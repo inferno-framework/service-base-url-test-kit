@@ -289,6 +289,8 @@ module ServiceBaseURLTestKit
           .select { |resource| resource.resourceType == 'Organization' }
 
         warning do
+          # This was requested to be included because a publication with only a single organization
+          # seems like a likely error and should be checked manually.
           assert(organization_resources.length > 1,
                  'The provided Service Base URL List contains only 1 Organization resource')
         end
