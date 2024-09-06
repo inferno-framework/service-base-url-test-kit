@@ -3,13 +3,13 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
   let(:session_data_repo) { Inferno::Repositories::SessionData.new }
   let(:test_session) { repo_create(:test_session, test_suite_id: 'service_base_url') }
   let(:base_url) { 'http://example.com/fhir' }
-  let(:service_base_url_list_url) { 'http://example.com/fhir/bundleEndpointList' }
+  let(:service_base_url_publication_url) { 'http://example.com/fhir/bundleEndpointList' }
   let(:runnable) { suite }
   let(:validator_url) { runnable.find_validator(:default).url }
 
   let(:input) do
     {
-      service_base_url_list_url:
+      service_base_url_publication_url:
     }
   end
   let(:validator_response_success) do
@@ -70,7 +70,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     let(:capability_statement) { FHIR.from_contents(File.read('spec/fixtures/CapabilityStatement.json')) }
 
     it 'passes if a valid Bundle was received' do
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -84,7 +84,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       result = run(test, input)
 
       expect(result.result).to eq('pass'), %(
-          Expected a service base URL list that returns a publicly accessible valid Bundle to pass
+          Expected a service base URL publication that returns a publicly accessible valid Bundle to pass
       )
       expect(capability_statement_request).to have_been_made.times(3)
       expect(validation_request).to have_been_made.times(7)
@@ -108,11 +108,11 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(validation_request).to have_been_made.times(7)
     end
 
-    it 'skips if no service base URL list URL or Bundle input provided' do
+    it 'skips if no service base URL publication URL or Bundle input provided' do
       result = run(test)
 
       expect(result.result).to eq('skip'), %(
-        Expect tests to skip if no service base URL list URL or service base URL Bundle inputted.
+        Expect tests to skip if no service base URL publication URL or service base URL Bundle inputted.
     )
     end
 
@@ -120,7 +120,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       # Remove a required field from Bundle resource
       bundle_resource.type = ''
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -144,7 +144,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       # change one of the Endpoint addresses to a URL that does not successfully return a capability statement
       bundle_resource.entry[4].resource.address = "#{base_url}/fake/address"
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       # this endpoint address capability statement endpoint will return a 404
@@ -172,7 +172,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     it 'fails if Bundle contains endpoint that has an invalid URL in the address field' do
       bundle_resource.entry[4].resource.address = 'invalid_url%.com'
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -218,7 +218,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
                                      resource: org
                                    ))
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -241,7 +241,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       # Remove the last Organizaition entry so that one Endpoint does not have an Organization resource that references it
       bundle_resource.entry.delete_at(3)
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"

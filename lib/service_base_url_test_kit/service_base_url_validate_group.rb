@@ -1,7 +1,7 @@
 module ServiceBaseURLTestKit
   class ServiceBaseURLBundleTestGroup < Inferno::TestGroup
     id :service_base_url_validate_list
-    title 'Validate Service Base URL List'
+    title 'Validate Service Base URL Publication'
     description %(
       These tests ensure that the developer's Service Base URL publication is in
       the Bundle resource format, with its service base URLs and organizational
@@ -9,10 +9,11 @@ module ServiceBaseURLTestKit
       the specifications detailed in the HTI-1 rule and the API Condition and
       Maintenance of Certification.
 
-      These tests may be run individually, bypassing the first test group, if the Service Base URL List Bundle input
-      is populated and the Service Base URL List URL is left blank (or if it does not successfully return a Service Base
-      URL List Bundle). You may insert your Service Base URL List Bundle in the JSON format in the Service Base URL List
-      Bundle input to validate your list without Inferno needing to retrieve the Bundle via a public-facing endpoint.
+      These tests may be run individually, bypassing the first test group, if the Service Base URL Publication Bundle
+      input is populated and the Service Base URL Publication URL is left blank (or if it does not successfully return
+      a Service Base URL Publication Bundle). You may insert your Service Base URL Publication Bundle in the JSON
+      format in the Service Base URL Publication Bundle input to validate your list without Inferno needing to retrieve
+      the Bundle via a public-facing endpoint.
     )
     run_as_group
 
@@ -41,6 +42,14 @@ module ServiceBaseURLTestKit
         .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
     end
 
+    def skip_message
+      %(
+        No Service Base URL request was made in the previous test, and no Service Base URL Publication Bundle
+        was provided as input instead. Either provide a Service Base URL Publication URL to retrieve the Bundle via a
+        HTTP GET request, or provide the Bundle as an input.
+      )
+    end
+
     #  Valid BUNDLE TESTS
     test do
       id :service_base_url_valid_bundle
@@ -52,7 +61,7 @@ module ServiceBaseURLTestKit
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
-                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            skip skip_message if requests.length != 1
                             requests.first.response_body
                           else
                             service_base_url_bundle
@@ -75,7 +84,7 @@ module ServiceBaseURLTestKit
     # VALID ENDPOINT TESTS
     test do
       id :service_base_url_valid_endpoints
-      title 'Service Base URL List contains valid Endpoint resources'
+      title 'Service Base URL Publication contains valid Endpoint resources'
       description %(
         Verify that Bundle of Service Base URLs contains Endpoints that are
         valid Endpoint resources according to the format defined in FHIR v4.0.1.
@@ -92,7 +101,7 @@ module ServiceBaseURLTestKit
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
-                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            skip skip_message if requests.length != 1
                             requests.first.response_body
                           else
                             service_base_url_bundle
@@ -138,7 +147,7 @@ module ServiceBaseURLTestKit
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
-                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            skip skip_message if requests.length != 1
                             requests.first.response_body
                           else
                             service_base_url_bundle
@@ -171,7 +180,7 @@ module ServiceBaseURLTestKit
     # ORGANIZATION TESTS
     test do
       id :service_base_url_valid_organizations
-      title 'Service Base URL List contains valid Organization resources'
+      title 'Service Base URL Publication contains valid Organization resources'
       description %(
 
         Verify that Bundle of Service Base URLs contains Organizations that are valid Organization resources according
@@ -191,7 +200,7 @@ module ServiceBaseURLTestKit
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
-                            skip 'No Service Base URL request was made in the previous test.' if requests.length != 1
+                            skip skip_message if requests.length != 1
                             requests.first.response_body
                           else
                             service_base_url_bundle
