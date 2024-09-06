@@ -22,8 +22,9 @@ module ServiceBaseURLTestKit
     input :endpoint_availability_limit,
           title: 'Endpoint Availability Limit',
           description: %(
-            Input a number to cap the number of Endpoints that Inferno will send requests to check for availability.
-            This can help speed up validation when there are large number of endpoints in the Service Base URL Bundle.
+            In the case where the Endpoint Availability Success Rate is 'All', input a number to cap the number of
+            Endpoints that Inferno will send requests to check for availability. This can help speed up validation when
+            there are large number of endpoints in the Service Base URL Bundle.
           ),
           optional: true
 
@@ -41,7 +42,7 @@ module ServiceBaseURLTestKit
                 value: 'all'
               },
               {
-                label: 'At Least 1',
+                label: 'At Least One',
                 value: 'at_least_1'
               },
               {
@@ -204,20 +205,25 @@ module ServiceBaseURLTestKit
                   (endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index)
 
           address = address.delete_suffix('/')
-          get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
+          warning do
+            get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
+          end
 
           if endpoint_availability_success_rate == 'all'
+            assert response.present?, "Encountered issues while trying to make a request to #{address}/metadata."
             assert_response_status(200)
             assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
             assert_resource_type(:capability_statement)
           else
-            warning do
-              assert_response_status(200)
-              assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
-              assert_resource_type(:capability_statement)
+            if response.present?
+              warning do
+                assert_response_status(200)
+                assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+                assert_resource_type(:capability_statement)
+              end
             end
 
-            if !one_endpoint_valid && response[:status] == 200 && resource.present? &&
+            if !one_endpoint_valid && response && response[:status] == 200 && resource.present? &&
                resource.resourceType == 'CapabilityStatement'
               one_endpoint_valid = true
             end
