@@ -20,6 +20,40 @@ module ServiceBaseURLTestKit
     input :service_base_url_bundle,
           optional: true
 
+    input :endpoint_availability_limit,
+          title: 'Endpoint Availability Limit',
+          description: %(
+            In the case where the Endpoint Availability Success Rate is 'All', input a number to cap the number of
+            Endpoints that Inferno will send requests to check for availability. This can help speed up validation when
+            there are large number of endpoints in the Service Base URL Bundle.
+          ),
+          optional: true
+
+    input :endpoint_availability_success_rate,
+          title: 'Endpoint Availability Success Rate',
+          description: %(
+            Select an option to choose how many Endpoints have to be available and send back a valid capability
+            statement for the Endpoint validation test to pass.
+          ),
+          type: 'radio',
+          options: {
+            list_options: [
+              {
+                label: 'All',
+                value: 'all'
+              },
+              {
+                label: 'At Least One',
+                value: 'at_least_1'
+              },
+              {
+                label: 'None',
+                value: 'none'
+              }
+            ]
+          },
+          default: 'all'
+
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
@@ -142,8 +176,6 @@ module ServiceBaseURLTestKit
         and available.
       )
 
-      output :testing
-
       run do
         bundle_response = if service_base_url_bundle.blank?
                             load_tagged_requests('service_base_url_bundle')
@@ -159,20 +191,60 @@ module ServiceBaseURLTestKit
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
-        bundle_resource
+        endpoint_list = bundle_resource
           .entry
           .map(&:resource)
           .select { |resource| resource.resourceType == 'Endpoint' }
           .map(&:address)
           .uniq
-          .each do |address|
+
+        if endpoint_availability_limit.present? && endpoint_availability_limit.to_i < endpoint_list.count
+          info %(
+            Only the first #{endpoint_availability_limit.to_i} endpoints of #{endpoint_list.count} total will be
+            checked.
+          )
+        end
+
+        one_endpoint_valid = false
+        endpoint_list.each_with_index do |address, index|
           assert_valid_http_uri(address)
 
+          next if endpoint_availability_success_rate == 'none' ||
+                  (endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index)
+
           address = address.delete_suffix('/')
-          get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
-          assert_response_status(200)
-          assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
-          assert_resource_type(:capability_statement)
+
+          response = nil
+          warning do
+            response = get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
+          end
+
+          if endpoint_availability_success_rate == 'all'
+            assert response.present?, "Encountered issues while trying to make a request to #{address}/metadata."
+            assert_response_status(200)
+            assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+            assert_resource_type(:capability_statement)
+          else
+            if response.present?
+              warning do
+                assert_response_status(200)
+                assert resource.present?, 'The content received does not appear to be a valid FHIR resource'
+                assert_resource_type(:capability_statement)
+              end
+            end
+
+            if !one_endpoint_valid && response.present? && response.status == 200 && resource.present? &&
+               resource.resourceType == 'CapabilityStatement'
+              one_endpoint_valid = true
+            end
+          end
+        end
+
+        if endpoint_availability_success_rate == 'at_least_1'
+          assert(one_endpoint_valid, %(
+            There were no Endpoints that were available and returned a valid Capability Statement in the Service Base
+            URL Bundle'
+          ))
         end
       end
     end

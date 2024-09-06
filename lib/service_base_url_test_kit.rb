@@ -26,7 +26,7 @@ module ServiceBaseURLTestKit
       [GitHub](https://github.com/inferno-framework/service-base-url-test-kit/issues),
       or by reaching out to the team on the [Inferno FHIR Zulip
       channel](https://chat.fhir.org/#narrow/stream/179309-inferno).
-      
+
       Relevant requirements from the [Conditions and Maintenance of
       Certification - Application programming
       interfaces](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)):
@@ -62,10 +62,12 @@ module ServiceBaseURLTestKit
 
     input_instructions <<~INSTRUCTIONS
       For systems that make their Service Base URL Bundle available at a public endpoint, please input
-      the Service Base URL Publication URL to retreive the Bundle from there in order to perform validation.
+      the Service Base URL Publication URL to retrieve the Bundle from there in order to perform validation, and leave
+      the Service Base URL Publication Bundle input blank.
 
       For systems that do not have a Service Base URL Bundle served at a public endpoint, testers can validate by
-      providing the Service Base URL Publication Bundle as an input.
+      providing the Service Base URL Publication Bundle as an input and leaving the Service Base URL Publication URL
+      input blank.
     INSTRUCTIONS
 
     links [
@@ -96,7 +98,7 @@ module ServiceBaseURLTestKit
     VALIDATION_MESSAGE_FILTERS = [
       /A resource should have narrative for robust management/,
       /\A\S+: \S+: URL value '.*' does not resolve/
-    ]
+    ].freeze
 
     # All FHIR validation requests will use this FHIR validator
     fhir_resource_validator :default do
