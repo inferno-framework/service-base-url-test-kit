@@ -62,7 +62,7 @@ module ServiceBaseURLTestKit
 
     input_instructions <<~INSTRUCTIONS
       For systems that make their Service Base URL Bundle available at a public endpoint, please input
-      the Service Base URL Publication URL to retreive the Bundle from there in order to perform validation, and leave
+      the Service Base URL Publication URL to retrieve the Bundle from there in order to perform validation, and leave
       the Service Base URL Publication Bundle input blank.
 
       For systems that do not have a Service Base URL Bundle served at a public endpoint, testers can validate by
