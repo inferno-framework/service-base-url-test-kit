@@ -1,40 +1,40 @@
 module ServiceBaseURLTestKit
   class ServiceBaseURLEndpointQueryGroup < Inferno::TestGroup
     id :service_base_url_retrieve_list
-    title 'Retrieve Service Base URL List'
+    title 'Retrieve Service Base URL Publication'
     description %(
-      A developer's Service Base URL list must be publicly available.  This test
+      A developer's Service Base URL publication must be publicly available.  This test
       issues a HTTP GET request against the supplied URL and expects to receive
-      the service base url list at this location.
+      the service base url publication at this location.
     )
     run_as_group
 
-    input :service_base_url_list_url,
-      title: 'Service Base URL List URL',
-      description: 'The URL to the developer\'s public Service Base URL List'
-
     http_client do
-      url :service_base_url_list_url
-      headers 'Accept': 'application/json, application/fhir+json'
+      url :service_base_url_publication_url
+      headers Accept: 'application/json, application/fhir+json'
     end
 
     test do
       id :service_base_url_retrieve_list_test
-      title 'Server returns publicly accessible Service Base URL List'
+      title 'Server returns publicly accessible Service Base URL Publication'
       description %(
         Verify that the developer's list of Service Base URLs can be publicly
         accessed at the supplied URL location.
       )
+
+      input :service_base_url_publication_url,
+            optional: true
 
       output :bundle_response
 
       makes_request :bundle_request
 
       run do
-        get
+        omit_if service_base_url_publication_url.blank?, 'URL for Service Base URL Publication not Inputted.'
+
+        get(tags: ['service_base_url_bundle'])
         assert_response_status(200)
-        output bundle_response: resource.to_json
-      end      
+      end
     end
   end
 end
