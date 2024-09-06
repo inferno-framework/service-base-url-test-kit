@@ -49,12 +49,6 @@ module ServiceBaseURLTestKit
         .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
     end
 
-    def get_endpoint_availability_limit(endpoint_availability_limit)
-      return if endpoint_availability_limit.blank?
-
-      endpoint_availability_limit.to_i
-    end
-
     #  Valid BUNDLE TESTS
     test do
       id :service_base_url_valid_bundle
@@ -169,12 +163,17 @@ module ServiceBaseURLTestKit
           .map(&:address)
           .uniq
 
-        check_limit = get_endpoint_availability_limit(endpoint_availability_limit)
+        if endpoint_availability_limit.present? && endpoint_availability_limit.to_i < endpoint_list.count
+          info %(
+            Only the first #{endpoint_availability_limit.to_i} endpoints of #{endpoint_list.count} total will be
+            checked.
+          )
+        end
 
         endpoint_list.each_with_index do |address, index|
           assert_valid_http_uri(address)
 
-          next if check_limit.present? && index >= check_limit
+          next if endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index
 
           address = address.delete_suffix('/')
           get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
