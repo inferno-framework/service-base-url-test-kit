@@ -171,7 +171,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     end
 
     it 'passes and only checks the availability of number of endpoints equal to the endpoint availability limit' do
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -182,7 +182,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
         .with(query: hash_including({}))
         .to_return(status: 200, body: validator_response_success.to_json)
 
-      result = run(test, service_base_url_list_url:, endpoint_availability_success_rate: 'all',
+      result = run(test, service_base_url_publication_url:, endpoint_availability_success_rate: 'all',
                          endpoint_availability_limit: 2)
 
       expect(result.result).to eq('pass')
@@ -194,7 +194,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       bundle_resource.entry[4].resource.address = "#{base_url}/fake/address/3"
       bundle_resource.entry[0].resource.address = "#{base_url}/fake/address/1"
 
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       fake_uri_template = Addressable::Template.new "#{base_url}/fake/address/{id}/metadata"
@@ -209,7 +209,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
         .with(query: hash_including({}))
         .to_return(status: 200, body: validator_response_success.to_json)
 
-      result = run(test, service_base_url_list_url:, endpoint_availability_success_rate: 'at_least_1')
+      result = run(test, service_base_url_publication_url:, endpoint_availability_success_rate: 'at_least_1')
 
       expect(result.result).to eq('pass')
       expect(capability_statement_request_fail).to have_been_made.times(2)
@@ -218,7 +218,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
     end
 
     it 'passes and does not retrieve any capability statements if success rate input set to none' do
-      stub_request(:get, service_base_url_list_url)
+      stub_request(:get, service_base_url_publication_url)
         .to_return(status: 200, body: bundle_resource.to_json, headers: {})
 
       uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
@@ -229,7 +229,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
         .with(query: hash_including({}))
         .to_return(status: 200, body: validator_response_success.to_json)
 
-      result = run(test, service_base_url_list_url:, endpoint_availability_success_rate: 'none')
+      result = run(test, service_base_url_publication_url:, endpoint_availability_success_rate: 'none')
 
       expect(result.result).to eq('pass')
       expect(capability_statement_request_success).to have_been_made.times(0)

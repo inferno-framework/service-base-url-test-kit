@@ -206,7 +206,6 @@ module ServiceBaseURLTestKit
         end
 
         one_endpoint_valid = false
-
         endpoint_list.each_with_index do |address, index|
           assert_valid_http_uri(address)
 
@@ -214,8 +213,10 @@ module ServiceBaseURLTestKit
                   (endpoint_availability_limit.present? && endpoint_availability_limit.to_i <= index)
 
           address = address.delete_suffix('/')
+
+          response = nil
           warning do
-            get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
+            response = get("#{address}/metadata", client: nil, headers: { Accept: 'application/fhir+json' })
           end
 
           if endpoint_availability_success_rate == 'all'
@@ -232,7 +233,7 @@ module ServiceBaseURLTestKit
               end
             end
 
-            if !one_endpoint_valid && response && response[:status] == 200 && resource.present? &&
+            if !one_endpoint_valid && response.present? && response.status == 200 && resource.present? &&
                resource.resourceType == 'CapabilityStatement'
               one_endpoint_valid = true
             end
