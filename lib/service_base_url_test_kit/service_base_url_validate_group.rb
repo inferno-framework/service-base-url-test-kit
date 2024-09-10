@@ -20,15 +20,6 @@ module ServiceBaseURLTestKit
     input :service_base_url_bundle,
           optional: true
 
-    input :endpoint_availability_limit,
-          title: 'Endpoint Availability Limit',
-          description: %(
-            In the case where the Endpoint Availability Success Rate is 'All', input a number to cap the number of
-            Endpoints that Inferno will send requests to check for availability. This can help speed up validation when
-            there are large number of endpoints in the Service Base URL Bundle.
-          ),
-          optional: true
-
     input :endpoint_availability_success_rate,
           title: 'Endpoint Availability Success Rate',
           description: %(
@@ -53,6 +44,15 @@ module ServiceBaseURLTestKit
             ]
           },
           default: 'all'
+
+    input :endpoint_availability_limit,
+          title: 'Endpoint Availability Limit',
+          description: %(
+            In the case where the Endpoint Availability Success Rate is 'All', input a number to cap the number of
+            Endpoints that Inferno will send requests to check for availability. This can help speed up validation when
+            there are large number of endpoints in the Service Base URL Bundle.
+          ),
+          optional: true
 
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
