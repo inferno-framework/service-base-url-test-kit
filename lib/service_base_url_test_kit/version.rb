@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module ServiceBaseURLTestKit
-  VERSION = '0.11.0-pre1'
+  VERSION = '0.11.0'
 end
