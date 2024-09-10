@@ -78,6 +78,14 @@ module ServiceBaseURLTestKit
       {
         label: 'Open Source',
         url: 'https://github.com/inferno-framework/service-base-url-test-kit'
+      },
+      {
+        label: 'Service base URL requirements',
+        url: 'https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-D/section-170.404#p-170.404(b)(2)'
+      },
+      {
+        label: 'Certification Companion Guide',
+        url: 'https://www.healthit.gov/condition-ccg/application-programming-interfaces'
       }
     ]
 
