@@ -47,14 +47,16 @@ module ServiceBaseURLTestKit
        - Organization details for each service base URL must be publicly published in Organization
          resource format according to the standard adopted in § 170.215(a) (FHIR v4.0.1). Each
          Organization resource must contain:
-          - A reference, in the Organization endpoint element, to the Endpoint
-            resources containing service base URLs managed by this organization.
           - The organization's name, location, and facility identifier.
+          - Either:
+            - A reference, in the Organization endpoint element, to the Endpoint
+            resources containing service base URLs managed by this organization
+            - A reference, in the Organization partOf element, to the parent Organization that contains the applicable
+            endpoint information in its own "Organization.endpoint" element
        - Endpoint and Organization resources must be:
          - Collected into a Bundle resource formatted according to the standard
-            adopted in § 170.215(a) (FHIR v4.0.1) for publication;
-         - and Reviewed quarterly and, as
-            necessary, updated.
+            adopted in § 170.215(a) (FHIR v4.0.1) for publication
+         - Reviewed quarterly and, as necessary, updated.
 
 
     )

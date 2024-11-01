@@ -282,10 +282,13 @@ module ServiceBaseURLTestKit
             - active
             - name
           - Include the organization's name, location, and facility identifier
-          - Use the endpoint field to reference Endpoints associated with the Organization:
-            - Must reference only Endpoint resources in the endpoint field
-            - Must reference at least one Endpoint resource in the endpoint field
-            - Must reference only Endpoints that are contained in the Service Base URL Bundle
+          - For Endpoint information, the Organization must either:
+            - Use the endpoint field to reference Endpoints associated with the Organization
+              - Must reference only Endpoint resources in the endpoint field
+              - Must reference at least one Endpoint resource in the endpoint field
+              - Must reference only Endpoints that are contained in the Service Base URL Bundle
+            - Use the partOf field to reference a parent Organization that already contains the applicable endpoint
+            information in its own "Organization.endpoint" element
       )
 
       run do
