@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Inferno Service Base URL Test Kit'
   spec.homepage      = 'https://github.com/inferno-framework/service-base-url-test-kit'
   spec.license       = 'Apache-2.0'
-  spec.add_runtime_dependency 'inferno_core', '~> 0.4.37'
+  spec.add_runtime_dependency 'inferno_core', '~> 0.5.0'
   spec.add_development_dependency 'database_cleaner-sequel', '~> 1.8'
   spec.add_development_dependency 'factory_bot', '~> 6.1'
   spec.add_development_dependency 'rspec', '~> 3.10'
