@@ -259,6 +259,92 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(validation_request).to have_been_made.times(7)
     end
 
+    it 'fails if Bundle contains an Organization that does not have the endpoint field populated' do
+      org = FHIR::Organization.new(
+        name: 'Test Medical Center 4',
+        active: true,
+        identifier: [{
+          system: 'http://hl7.org/fhir/sid/us-npi',
+          value: '1396251542'
+        }],
+        address: [
+          {
+            line: ['200 River Green Ave'],
+            city: 'Canton',
+            state: 'GA',
+            postalCode: '30114',
+            country: 'United States of America'
+          }
+        ]
+      )
+
+      bundle_resource.entry.append(FHIR::Bundle::Entry.new(
+                                     fullUrl: 'https://example.com/base/Organization/example-organization-4',
+                                     resource: org
+                                   ))
+
+      stub_request(:get, service_base_url_publication_url)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: validator_response_success.to_json)
+
+      result = run(test, input)
+
+      expect(result.result).to eq('fail'), %(
+          Expected if Organization within the bundle does not have the endpoint field, then test will fail.
+      )
+      expect(validation_request).to have_been_made.times(8)
+    end
+
+    it 'passes if Bundle contains an Organization that has a parent org with the endpoint field populated' do
+      child_org = FHIR::Organization.new(
+        name: 'Test Medical Center 4',
+        id: 'example-organization-4',
+        active: true,
+        identifier: [{
+          system: 'http://hl7.org/fhir/sid/us-npi',
+          value: '1396251542'
+        }],
+        address: [
+          {
+            line: ['200 River Green Ave'],
+            city: 'Canton',
+            state: 'GA',
+            postalCode: '30114',
+            country: 'United States of America'
+          }
+        ],
+        partOf: {
+          reference: 'Organization/example-organization-1'
+        }
+      )
+
+      bundle_resource.entry.append(FHIR::Bundle::Entry.new(
+                                     fullUrl: 'https://example.com/base/Organization/example-organization-4',
+                                     resource: child_org
+                                   ))
+
+      stub_request(:get, service_base_url_publication_url)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: validator_response_success.to_json)
+      result = run(test, input)
+      expect(result.result).to eq('pass')
+      expect(validation_request).to have_been_made.times(8)
+    end
+
     it 'fails if Bundle contains an Organization that references a fake Endpoint' do
       # add organization resource to bundle that does not reference an Endpoint contained in the Bundle
       org = FHIR::Organization.new(

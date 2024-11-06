@@ -76,6 +76,14 @@ module ServiceBaseURLTestKit
         .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
     end
 
+    def find_parent_organization(bundle_resource, org_reference)
+      bundle_resource
+        .entry
+        .map(&:resource)
+        .select { |resource| resource.resourceType == 'Organization' }
+        .find { |parent_org| org_reference.include? parent_org.id }
+    end
+
     def skip_message
       %(
         No Service Base URL request was made in the previous test, and no Service Base URL Publication Bundle
@@ -274,10 +282,13 @@ module ServiceBaseURLTestKit
             - active
             - name
           - Include the organization's name, location, and facility identifier
-          - Use the endpoint field to reference Endpoints associated with the Organization:
-            - Must reference only Endpoint resources in the endpoint field
-            - Must reference at least one Endpoint resource in the endpoint field
-            - Must reference only Endpoints that are contained in the Service Base URL Bundle
+          - For Endpoint information, the Organization must either:
+            - Use the endpoint field to reference Endpoints associated with the Organization
+              - Must reference only Endpoint resources in the endpoint field
+              - Must reference at least one Endpoint resource in the endpoint field
+              - Must reference only Endpoints that are contained in the Service Base URL Bundle
+            - Use the partOf field to reference a parent Organization that already contains the applicable endpoint
+            information in its own "Organization.endpoint" element
       )
 
       run do
@@ -313,18 +324,31 @@ module ServiceBaseURLTestKit
         end
 
         organization_resources.each do |organization|
-          assert !organization.endpoint.empty?,
-                 "Organization with id: #{organization.id} does not have the endpoint field populated"
           assert !organization.address.empty?,
                  "Organization with id: #{organization.id} does not have the address field populated"
 
-          endpoint_references = organization.endpoint.map(&:reference)
+          if organization.endpoint.empty?
+            assert organization.partOf.present?, %(
+                    Organization with id: #{organization.id} does not have the endpoint or partOf field populated
+                  )
+            parent_organization = find_parent_organization(bundle_resource, organization.partOf.reference)
+            assert(parent_organization.present?, %(
+              Organization with id: #{organization.id} references parent Organization not found in the Bundle:
+              #{organization.partOf.reference}
+            ))
+            assert(!parent_organization.endpoint.empty?, %(
+              Organization with id: #{organization.id} has parent Organization with id: #{parent_organization.id} that
+              does not have the `endpoint` field populated.
+            ))
+          else
+            endpoint_references = organization.endpoint.map(&:reference)
 
-          endpoint_references.each do |endpoint_id_ref|
-            organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
-            assert !organization_referenced_endpts.empty?,
-                   "Organization with id: #{organization.id} references an Endpoint that is not contained in this
-                   bundle."
+            endpoint_references.each do |endpoint_id_ref|
+              organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
+              assert !organization_referenced_endpts.empty?,
+                     "Organization with id: #{organization.id} references an Endpoint that is not contained in this
+                    bundle."
+            end
           end
         end
       end
