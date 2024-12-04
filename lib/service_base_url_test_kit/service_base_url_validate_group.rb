@@ -284,15 +284,19 @@ module ServiceBaseURLTestKit
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
-        endpoint_resources =
+        assert_valid_bundle_entries(bundle: bundle_resource,
+                                    resource_types: {
+                                      Endpoint: nil
+                                    })
+
+        endpoint_ids =
           bundle_resource
             .entry
             .map(&:resource)
             .select { |resource| resource.resourceType == 'Endpoint' }
+            .map(&:id)
 
-        endpoint_resources.each do |endpoint|
-          assert_valid_resource(resource: endpoint)
-          endpoint_id = endpoint.id
+        endpoint_ids.each do |endpoint_id|
           endpoint_referenced_orgs = find_referenced_org(bundle_resource, endpoint_id)
           assert !endpoint_referenced_orgs.empty?,
                  "Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle."
@@ -416,9 +420,12 @@ module ServiceBaseURLTestKit
                  'The provided Service Base URL List contains only 1 Organization resource')
         end
 
-        organization_resources.each do |organization|
-          assert_valid_resource(resource: organization)
+        assert_valid_bundle_entries(bundle: bundle_resource,
+                                    resource_types: {
+                                      Organization: nil
+                                    })
 
+        organization_resources.each do |organization|
           assert !organization.address.empty?,
                  "Organization with id: #{organization.id} does not have the address field populated"
 
