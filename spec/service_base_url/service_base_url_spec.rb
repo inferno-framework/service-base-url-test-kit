@@ -88,7 +88,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
           Expected a service base URL publication that returns a publicly accessible valid Bundle to pass
       )
       expect(capability_statement_request).to have_been_made.times(3)
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'passes if a valid Bundle was inputted' do
@@ -106,7 +106,29 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
         Expected a valid inputted service base url Bundle to pass
     )
       expect(capability_statement_request).to have_been_made.times(3)
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
+    end
+
+    it 'passes if a valid Bundle was received and resource_validation_limit input is entered' do
+      stub_request(:get, service_base_url_publication_url)
+        .to_return(status: 200, body: bundle_resource.to_json, headers: {})
+
+      uri_template = Addressable::Template.new "#{base_url}/{id}/metadata"
+      capability_statement_request = stub_request(:get, uri_template)
+        .to_return(status: 200, body: capability_statement.to_json, headers: {})
+
+      validation_request = stub_request(:post, "#{validator_url}/validate")
+        .with(query: hash_including({}))
+        .to_return(status: 200, body: validator_response_success.to_json)
+
+      input['resource_validation_limit'] = '2'
+      result = run(test, input)
+
+      expect(result.result).to eq('pass'), %(
+          Expected a service base URL publication that returns a publicly accessible valid Bundle to pass
+      )
+      expect(capability_statement_request).to have_been_made.times(1)
+      expect(validation_request).to have_been_made.times(2)
     end
 
     it 'skips if no service base URL publication URL or Bundle input provided' do
@@ -138,7 +160,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('fail'), %(
           Expected if validation service responds with a validation fail or Bundle resource that is invalid.
       )
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'fails if Bundle contains endpoint that do not return a successful capability statement' do
@@ -167,7 +189,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       )
       expect(capability_statement_request_success).to have_been_made.times(2)
       expect(capability_statement_request_fail).to have_been_made
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'passes and only checks the availability of number of endpoints equal to the endpoint availability limit' do
@@ -187,7 +209,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       expect(result.result).to eq('pass')
       expect(capability_statement_request_success).to have_been_made.times(2)
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'passes if at least 1 endpoint is available when success rate input is set to at least 1' do
@@ -214,7 +236,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('pass')
       expect(capability_statement_request_fail).to have_been_made.times(2)
       expect(capability_statement_request_success).to have_been_made
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'passes and does not retrieve any capability statements if success rate input set to none' do
@@ -233,7 +255,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
 
       expect(result.result).to eq('pass')
       expect(capability_statement_request_success).to have_been_made.times(0)
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'fails if Bundle contains endpoint that has an invalid URL in the address field' do
@@ -256,7 +278,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
           Expected test to fail when Bundle contains endpoint that has an invalid URL in address field
       )
       expect(capability_statement_request).to have_been_made.times(2)
-      expect(validation_request).to have_been_made.times(7)
+      expect(validation_request).to have_been_made.times(6)
     end
 
     it 'fails if Bundle contains an Organization that does not have the endpoint field populated' do
@@ -299,7 +321,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('fail'), %(
           Expected if Organization within the bundle does not have the endpoint field, then test will fail.
       )
-      expect(validation_request).to have_been_made.times(8)
+      expect(validation_request).to have_been_made.times(7)
     end
 
     it 'passes if Bundle contains an Organization that has a parent org with the endpoint field populated' do
@@ -342,7 +364,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
         .to_return(status: 200, body: validator_response_success.to_json)
       result = run(test, input)
       expect(result.result).to eq('pass')
-      expect(validation_request).to have_been_made.times(8)
+      expect(validation_request).to have_been_made.times(7)
     end
 
     it 'fails if Bundle contains an Organization that references a fake Endpoint' do
@@ -387,7 +409,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('fail'), %(
           Expected if Organization within the bundle references an Endpoint not in the Bundle, then test will fail.
       )
-      expect(validation_request).to have_been_made.times(8)
+      expect(validation_request).to have_been_made.times(7)
     end
 
     it 'fails if Bundle contains an Endpoint that does have an associated Organization reference' do
@@ -410,7 +432,7 @@ RSpec.describe ServiceBaseURLTestKit::ServiceBaseURLGroup do
       expect(result.result).to eq('fail'), %(
           Expected if Endpoint within bundle does not have an Organization that references it, then test will fail.
       )
-      expect(validation_request).to have_been_made.times(6)
+      expect(validation_request).to have_been_made.times(5)
     end
   end
 end
