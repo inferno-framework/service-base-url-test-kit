@@ -284,23 +284,39 @@ module ServiceBaseURLTestKit
 
         skip_if bundle_resource.entry.empty?, 'The given Bundle does not contain any resources'
 
-        assert_valid_bundle_entries(bundle: bundle_resource,
-                                    resource_types: {
-                                      Endpoint: nil
-                                    })
-
-        endpoint_ids =
+        endpoint_resources =
           bundle_resource
             .entry
             .map(&:resource)
             .select { |resource| resource.resourceType == 'Endpoint' }
-            .map(&:id)
 
-        endpoint_ids.each do |endpoint_id|
+        endpoint_resources.each do |endpoint|
+          resource_is_valid?(resource: endpoint)
+
+          endpoint_id = endpoint.id
           endpoint_referenced_orgs = find_referenced_org(bundle_resource, endpoint_id)
-          assert !endpoint_referenced_orgs.empty?,
-                 "Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle."
+          next unless endpoint_referenced_orgs.empty?
+
+          add_message('error', %(
+            Endpoint with id: #{endpoint_id} does not have any associated Organizations in the Bundle.
+          ))
         end
+
+        error_messages = messages.select { |msg| msg[:type] == 'error' }
+        non_error_messages = messages.reject { |msg| msg[:type] == 'error' }
+
+        @messages = []
+        @messages += error_messages.first(20) unless error_messages.empty?
+        @messages += non_error_messages.first(50) unless non_error_messages.empty?
+
+        if error_messages.count > 20 || non_error_messages.count > 50
+          info_message = 'Inferno is only showing the first 20 error and 50 warning/information validation messages'
+          messages << { type: 'info', message: info_message }
+        end
+
+        assert messages.empty? || messages.none? { |msg| msg[:type] == 'error' }, %(
+          Some Endpoints in the Service Base URL Bundle are invalid
+        )
       end
     end
 
@@ -420,39 +436,65 @@ module ServiceBaseURLTestKit
                  'The provided Service Base URL List contains only 1 Organization resource')
         end
 
-        assert_valid_bundle_entries(bundle: bundle_resource,
-                                    resource_types: {
-                                      Organization: nil
-                                    })
-
         organization_resources.each do |organization|
-          assert !organization.address.empty?,
-                 "Organization with id: #{organization.id} does not have the address field populated"
+          resource_is_valid?(resource: organization)
+
+          if organization.address.empty?
+            add_message('error', "Organization with id: #{organization.id} does not have the address field populated")
+          end
 
           if organization.endpoint.empty?
-            assert organization.partOf.present?, %(
-                    Organization with id: #{organization.id} does not have the endpoint or partOf field populated
-                  )
+            if organization.partOf.blank?
+              add_message('error', %(
+                Organization with id: #{organization.id} does not have the endpoint or partOf field populated
+              ))
+            end
+
             parent_organization = find_parent_organization(bundle_resource, organization.partOf.reference)
-            assert(parent_organization.present?, %(
-              Organization with id: #{organization.id} references parent Organization not found in the Bundle:
-              #{organization.partOf.reference}
-            ))
-            assert(!parent_organization.endpoint.empty?, %(
-              Organization with id: #{organization.id} has parent Organization with id: #{parent_organization.id} that
-              does not have the `endpoint` field populated.
-            ))
+
+            if parent_organization.blank?
+              add_message('error', %(
+                Organization with id: #{organization.id} references parent Organization not found in the Bundle:
+                #{organization.partOf.reference}
+              ))
+            end
+
+            if parent_organization.endpoint.empty?
+              add_message('error', %(
+                Organization with id: #{organization.id} has parent Organization with id: #{parent_organization.id} that
+                does not have the `endpoint` field populated.
+              ))
+            end
           else
             endpoint_references = organization.endpoint.map(&:reference)
 
             endpoint_references.each do |endpoint_id_ref|
               organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
-              assert !organization_referenced_endpts.empty?,
-                     "Organization with id: #{organization.id} references an Endpoint that is not contained in this
-                    bundle."
+              next unless organization_referenced_endpts.empty?
+
+              add_message('error', %(
+                Organization with id: #{organization.id} references an Endpoint that is not contained in this
+                bundle."
+              ))
             end
           end
         end
+
+        error_messages = messages.select { |msg| msg[:type] == 'error' }
+        non_error_messages = messages.reject { |msg| msg[:type] == 'error' }
+
+        @messages = []
+        @messages += error_messages.first(20) unless error_messages.empty?
+        @messages += non_error_messages.first(50) unless non_error_messages.empty?
+
+        if error_messages.count > 20 || non_error_messages.count > 50
+          info_message = 'Inferno is only showing the first 20 error and 50 warning/information validation messages'
+          add_message('info', info_message)
+        end
+
+        assert messages.empty? || messages.none? { |msg| msg[:type] == 'error' }, %(
+          Some Organizations in the Service Base URL Bundle are invalid
+        )
       end
     end
   end
