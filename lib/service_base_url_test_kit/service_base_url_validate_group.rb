@@ -128,7 +128,7 @@ module ServiceBaseURLTestKit
         elsif organization_resource.partOf.present?
           parent_org = find_parent_organization_entry(organization_entries, organization_resource.partOf.reference)
 
-          unless resource_already_exists?(new_entries, parent_org, 'Organization')
+          unless parent_org.blank? || resource_already_exists?(new_entries, parent_org, 'Organization')
             new_entries.append(parent_org)
             resource_validation_limit -= 1
 
@@ -138,12 +138,25 @@ module ServiceBaseURLTestKit
         end
 
         found_endpoint_entries.each do |found_endpoint_entry|
-          unless resource_already_exists?(new_entries, found_endpoint_entry, 'Endpoint')
-            new_entries.append(found_endpoint_entry)
-            resource_validation_limit -= 1
+          next if resource_already_exists?(new_entries, found_endpoint_entry, 'Endpoint')
+
+          new_entries.append(found_endpoint_entry)
+
+          endpoint_entries.delete_if do |entry|
+            entry.resource.resourceType == 'Endpoint' && entry.resource.id == found_endpoint_entry.resource.id
           end
+
+          resource_validation_limit -= 1
         end
       end
+
+      endpoint_entries.each do |endpoint_entry|
+        break if resource_validation_limit <= 0
+
+        new_entries.append(endpoint_entry)
+        resource_validation_limit -= 1
+      end
+
       new_entries
     end
 
@@ -158,7 +171,7 @@ module ServiceBaseURLTestKit
         found_endpoint = endpoint_entries.find do |endpoint_entry|
           endpoint_ref.reference.include?(endpoint_entry.resource.id)
         end
-        endpoints.append(found_endpoint)
+        endpoints.append(found_endpoint) if found_endpoint.present?
       end
       endpoints
     end
@@ -448,6 +461,7 @@ module ServiceBaseURLTestKit
               add_message('error', %(
                 Organization with id: #{organization.id} does not have the endpoint or partOf field populated
               ))
+              next
             end
 
             parent_organization = find_parent_organization(bundle_resource, organization.partOf.reference)
@@ -457,6 +471,7 @@ module ServiceBaseURLTestKit
                 Organization with id: #{organization.id} references parent Organization not found in the Bundle:
                 #{organization.partOf.reference}
               ))
+              next
             end
 
             if parent_organization.endpoint.empty?
