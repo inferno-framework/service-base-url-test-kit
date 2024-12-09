@@ -111,7 +111,7 @@ module ServiceBaseURLTestKit
     ].freeze
 
     # All FHIR validation requests will use this FHIR validator
-    fhir_resource_validator :default do
+    fhir_resource_validator do
       exclude_message do |message|
         VALIDATION_MESSAGE_FILTERS.any? { |filter| filter.match? message.message }
       end
