@@ -63,6 +63,10 @@ module ServiceBaseURLTestKit
           ),
           optional: true
 
+    def regex_match?(resource_id, reference)
+      %r{#{resource_id}(?:/[^\/]*|\|[^\/]*)*/?$}.match?(reference)
+    end
+
     # @private
     def find_referenced_org(bundle_resource, endpoint_id)
       bundle_resource
@@ -72,7 +76,7 @@ module ServiceBaseURLTestKit
         .map(&:endpoint)
         .flatten
         .map(&:reference)
-        .select { |reference| reference.include? endpoint_id }
+        .select { |reference| regex_match?(endpoint_id, reference) }
     end
 
     # @private
@@ -82,7 +86,7 @@ module ServiceBaseURLTestKit
         .map(&:resource)
         .select { |resource| resource.resourceType == 'Endpoint' }
         .map(&:id)
-        .select { |endpoint_id| endpoint_id_ref.include? endpoint_id }
+        .select { |endpoint_id| regex_match?(endpoint_id, endpoint_id_ref) }
     end
 
     def find_parent_organization(bundle_resource, org_reference)
@@ -90,7 +94,7 @@ module ServiceBaseURLTestKit
         .entry
         .map(&:resource)
         .select { |resource| resource.resourceType == 'Organization' }
-        .find { |parent_org| org_reference.include? parent_org.id }
+        .find { |parent_org| regex_match?(parent_org.id, org_reference) }
     end
 
     def skip_message
@@ -162,14 +166,14 @@ module ServiceBaseURLTestKit
 
     def find_parent_organization_entry(organization_entries, org_reference)
       organization_entries
-        .find { |parent_org_entry| org_reference.include? parent_org_entry.resource.id }
+        .find { |parent_org_entry| regex_match?(parent_org_entry.resource.id, org_reference) }
     end
 
     def find_referenced_endpoints(organization_endpoints, endpoint_entries)
       endpoints = []
       organization_endpoints.each do |endpoint_ref|
         found_endpoint = endpoint_entries.find do |endpoint_entry|
-          endpoint_ref.reference.include?(endpoint_entry.resource.id)
+          regex_match?(endpoint_entry.resource.id, endpoint_ref.reference)
         end
         endpoints.append(found_endpoint) if found_endpoint.present?
       end
@@ -482,14 +486,13 @@ module ServiceBaseURLTestKit
             end
           else
             endpoint_references = organization.endpoint.map(&:reference)
-
             endpoint_references.each do |endpoint_id_ref|
               organization_referenced_endpts = find_referenced_endpoint(bundle_resource, endpoint_id_ref)
               next unless organization_referenced_endpts.empty?
 
               add_message('error', %(
-                Organization with id: #{organization.id} references an Endpoint that is not contained in this
-                bundle."
+                Organization with id: #{organization.id} references an Endpoint #{endpoint_id_ref}
+                that is not contained in this bundle.
               ))
             end
           end
