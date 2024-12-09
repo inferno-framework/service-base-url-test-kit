@@ -64,6 +64,8 @@ module ServiceBaseURLTestKit
           optional: true
 
     def regex_match?(resource_id, reference)
+      return false if resource_id.blank?
+
       %r{#{resource_id}(?:/[^\/]*|\|[^\/]*)*/?$}.match?(reference)
     end
 
