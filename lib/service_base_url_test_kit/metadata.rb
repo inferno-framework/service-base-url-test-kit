@@ -18,7 +18,7 @@ module ServiceBaseURLTestKit
       [ONC HTI-1 Final Rule](https://www.healthit.gov/topic/laws-regulation-and-policy/health-data-technology-and-interoperability-certification-program).
       Please review the
       [Application Programming Interfaces Certification Companion Guide](https://www.healthit.gov/condition-ccg/application-programming-interfaces)
-      for additional guidance.<!--break --> This Test Kit is provided as a tool
+      for additional guidance. <!-- break -->This Test Kit is provided as a tool
       to help developers identify potential issues or problems with the
       structure of their Service Base URL publication. Test failures do not
       necessarily indicate non-conformance to the Conditions and Maintenance of
