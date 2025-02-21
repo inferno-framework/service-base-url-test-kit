@@ -61,7 +61,6 @@ module ServiceBaseURLTestKit
 
 
     )
-    version VERSION
 
     input_instructions <<~INSTRUCTIONS
       For systems that make their Service Base URL Bundle available at a public endpoint, please input
@@ -81,6 +80,10 @@ module ServiceBaseURLTestKit
       {
         label: 'Open Source',
         url: 'https://github.com/inferno-framework/service-base-url-test-kit'
+      },
+      {
+        label: 'Download',
+        url: 'https://github.com/inferno-framework/service-base-url-test-kit/releases'
       },
       {
         label: 'Service base URL requirements',
