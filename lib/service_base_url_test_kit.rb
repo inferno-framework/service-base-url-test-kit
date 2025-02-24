@@ -1,5 +1,4 @@
 require_relative 'service_base_url_test_kit/metadata'
-require_relative 'service_base_url_test_kit/version'
 require_relative 'service_base_url_test_kit/service_base_url_test_group'
 require 'erb'
 
