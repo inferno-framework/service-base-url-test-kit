@@ -1,3 +1,5 @@
+require_relative 'version'
+
 module ServiceBaseURLTestKit
   class Metadata < Inferno::TestKit
     id :service_base_url_test_kit
